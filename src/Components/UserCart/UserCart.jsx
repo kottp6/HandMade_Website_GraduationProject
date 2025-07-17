@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   collection,
   query,
@@ -16,6 +17,7 @@ import UserNavbar from "../UserNavbar/UserNavbar";
 export default function UserCart() {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const fetchCart = async () => {
     const user = auth.currentUser;
@@ -253,15 +255,11 @@ export default function UserCart() {
                     Delete All
                     </button>
 
-                    <button
-                    onClick={() => {
-                        toast.success("Checkout successful!"); // Replace this with real checkout logic or redirect
-                        // Example: navigate("/checkout");
-                    }}
-                    className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-                    >
-                    Checkout
-                    </button>
+                  <button onClick={() => navigate("/checkout", {  state: { total: totalPrice,cartItems: cartItems,  },}) } className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+                   Checkout
+                  </button>
+
+
                 </div>
             </div>
 

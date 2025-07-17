@@ -58,7 +58,7 @@ const Login = () => {
       navigate("/homeuser");
     } else if (userData.role === "vendor") {
       toast.success("Welcome Vendor");
-      navigate("/homevendor");
+      navigate("/vendorhome");
     } else {
       toast.error("Unknown user role.");
     }

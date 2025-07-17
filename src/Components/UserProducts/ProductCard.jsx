@@ -1,13 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaRegHeart, FaHeart, FaEye } from "react-icons/fa";
 import { db, auth } from "../../firebase";
-import {
-  doc,
-  setDoc,
-  getDoc,
-  deleteDoc,
-  updateDoc,
-} from "firebase/firestore";
+import { doc, setDoc, getDoc, deleteDoc, updateDoc } from "firebase/firestore";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -18,12 +12,13 @@ export default function ProductCard({
   image,
   rating,
   stock,
-  categoryName,
+  categoryName, 
 }) {
   const [isFavorited, setIsFavorited] = useState(false);
-  const [addingToCart, setAddingToCart] = useState(false);
   const navigate = useNavigate();
-
+  const handleViewDetails = () => {
+  navigate(`/product/${id}`);
+};
   useEffect(() => {
     const checkFavorite = async () => {
       const user = auth.currentUser;
@@ -77,7 +72,6 @@ export default function ProductCard({
       return;
     }
 
-    setAddingToCart(true);
     const cartId = `${user.uid}_${id}`;
     const cartRef = doc(db, "Cart", cartId);
     const productRef = doc(db, "Products", id);
@@ -136,13 +130,7 @@ export default function ProductCard({
     } catch (error) {
       console.error("Failed to add to cart:", error);
       toast.error("Failed to add to cart.");
-    } finally {
-      setAddingToCart(false);
     }
-  };
-
-  const handleViewDetails = () => {
-    navigate(`/userproducts/${id}`);
   };
 
   return (
@@ -195,10 +183,9 @@ export default function ProductCard({
           <p className="text-lg font-bold text-[#A78074]">{price} EGP</p>
           <button
             onClick={handleAddToCart}
-            disabled={addingToCart}
-            className="bg-[#A78074] text-white mt-1 px-6 py-2 rounded-lg border border-[#A78074] hover:bg-white hover:text-[#A78074] transition disabled:opacity-50"
+            className="bg-[#A78074] text-white mt-1 px-6 py-2 rounded-lg border border-[#A78074] hover:bg-white hover:text-[#A78074] transition"
           >
-            {addingToCart ? "Adding..." : "Add To Cart"}
+            Add To Cart
           </button>
         </div>
       </div>
