@@ -4,6 +4,10 @@ import ProductList from "../ProductList/ProductList";
 import Search from "../Search/Search";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
+import Banner from "./Banner";
+import SpecialOffers from "./SpecialOffers";
+import Testimonials from "./Testimonials";
+import { Link } from "react-router-dom";
 
 export default function HomeUser() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,7 +37,8 @@ export default function HomeUser() {
           categoryMap[doc.id] = doc.data().name;
         });
 
-        setProducts(productList);
+        //setProducts(productList);
+        setProducts(productList.slice(0, 4));
         setCategories(categoryMap);
       } catch (error) {
         console.error("Error loading data:", error);
@@ -57,15 +62,23 @@ export default function HomeUser() {
   return (
     <>
       <UserNavbar />
-      <div className="min-h-screen flex flex-col items-center p-6">
+      <div className="min-h-screen ">
         {loading ? (
           <div className="flex items-center justify-center h-96">
             <div className="w-12 h-12 border-4 border-[#A78074] border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : (
           <>
-            <Search search={searchQuery} onSearchChange={handleSearchChange} />
-            <ProductList products={enrichedProducts} />
+            <Banner />
+            {/* <Search search={searchQuery} onSearchChange={handleSearchChange} /> */}
+            <div>
+              <h2 className="text-4xl font-bold mt-10 mb-6 text-[#A78074] text-center">Top Products</h2>
+              <ProductList products={enrichedProducts} />
+            </div>
+            <Link to='/userproducts' className=" bg-[#A78074] w-50 mx-auto flex justify-center mt-10 text-white mt-1 px-6 py-2 rounded-lg border border-[#A78074] hover:bg-white hover:text-[#A78074] transition">View More</Link>
+            <SpecialOffers />
+            <Testimonials />
+          
           </>
         )}
       </div>

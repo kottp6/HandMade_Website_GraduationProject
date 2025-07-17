@@ -11,7 +11,22 @@ export default function UserNavbar() {
   const navigate = useNavigate();
   const [hasNewMessages, setHasNewMessages] = useState(false);
 
-
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const userDocRef = doc(db, "Users", user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+  
+        if (userDocSnap.exists()) {
+          const data = userDocSnap.data();
+          setUserName(data.displayName || "User");
+        }
+      }
+    });
+  
+    return () => unsubscribe();
+  }, []);
+  
   useEffect(() => {
     const user = auth.currentUser;
     if (!user) return;

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { FaRegHeart, FaHeart, FaEye } from "react-icons/fa";
 import { db, auth } from "../../firebase";
+
 import {
   doc,
   setDoc,
   getDoc,
   deleteDoc,
   updateDoc,
+  onSnapshot,
 } from "firebase/firestore";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -17,11 +19,26 @@ export default function ProductCard({
   price,
   image,
   rating,
-  stock,
+  
   categoryName,
 }) {
   const [isFavorited, setIsFavorited] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [stock, setStock] = useState(0);
+
+  useEffect(() => {
+    const productRef = doc(db, "Products", id);
+
+    const unsubscribe = onSnapshot(productRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        setStock(data.stock); // Live stock update
+      }
+    });
+
+    return () => unsubscribe(); // Clean up on unmount
+  }, [id]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -76,45 +93,44 @@ export default function ProductCard({
       toast.error("You must be logged in to add to cart");
       return;
     }
-
+  
     setAddingToCart(true);
     const cartId = `${user.uid}_${id}`;
     const cartRef = doc(db, "Cart", cartId);
     const productRef = doc(db, "Products", id);
-
+  
     try {
       const [cartSnap, productSnap] = await Promise.all([
         getDoc(cartRef),
         getDoc(productRef),
       ]);
-
+  
       if (!productSnap.exists()) {
         toast.error("Product no longer exists.");
         return;
       }
-
+  
       const productData = productSnap.data();
-      const currentStock = productData.stock || 0;
-
-      if (currentStock === 0) {
+      const currentStock = productData.stock ?? 0;
+  
+      if (currentStock <= 0) {
         toast.error("Out of stock");
         return;
       }
-
+  
       if (cartSnap.exists()) {
         const cartData = cartSnap.data();
         const newQuantity = cartData.quantity + 1;
-
+  
         await Promise.all([
-          setDoc(cartRef, {
-            ...cartData,
+          updateDoc(cartRef, {
             quantity: newQuantity,
           }),
           updateDoc(productRef, {
             stock: currentStock - 1,
           }),
         ]);
-
+  
         toast.success("Quantity updated in cart!");
       } else {
         await Promise.all([
@@ -130,7 +146,7 @@ export default function ProductCard({
             stock: currentStock - 1,
           }),
         ]);
-
+  
         toast.success("Added to cart!");
       }
     } catch (error) {
@@ -140,13 +156,14 @@ export default function ProductCard({
       setAddingToCart(false);
     }
   };
+  
 
   const handleViewDetails = () => {
     navigate(`/userproducts/${id}`);
   };
 
   return (
-    <div className="bg-[#f5f5f1] w-full max-w-xs rounded-xl shadow-md p-4 transition hover:scale-102 duration-200 relative">
+    <div className="bg-[#f5f5f1] w-90 mx-auto max-w-xs rounded-xl shadow-md p-4 transition hover:scale-102 duration-200 relative">
       <div className="relative">
         <img
           src={image}
@@ -195,11 +212,16 @@ export default function ProductCard({
           <p className="text-lg font-bold text-[#A78074]">{price} EGP</p>
           <button
             onClick={handleAddToCart}
-            disabled={addingToCart}
-            className="bg-[#A78074] text-white mt-1 px-6 py-2 rounded-lg border border-[#A78074] hover:bg-white hover:text-[#A78074] transition disabled:opacity-50"
+            disabled={addingToCart || stock === 0}
+            className={`mt-1 px-6 py-2 rounded-lg border transition ${
+              stock === 0
+                ? "bg-gray-400 text-white cursor-not-allowed"
+                : "bg-[#A78074] text-white border-[#A78074] hover:bg-white hover:text-[#A78074]"
+            }`}
           >
-            {addingToCart ? "Adding..." : "Add To Cart"}
+            {stock === 0 ? "Out of Stock" : addingToCart ? "Adding..." : "Add To Cart"}
           </button>
+
         </div>
       </div>
     </div>
