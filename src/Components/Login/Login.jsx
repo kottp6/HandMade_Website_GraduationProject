@@ -33,7 +33,7 @@ const Login = () => {
     if (data.email === "admin123@gmail.com" && data.password === "admin@123") {
       await signInWithEmailAndPassword(auth, data.email, data.password);
       toast.success("Welcome Admin");
-      navigate("/dashboard");
+      navigate("/admin/overview");
       return;
     }
 

@@ -16,6 +16,11 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import Sidebar from "../Components/Sidebar/Sidebar";
+import { LayoutDashboard, Package, Users, Building, MessageSquare, AlertCircle, Star } from "lucide-react";
+import { Menu, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { FaShoppingCart } from "react-icons/fa";
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
@@ -142,7 +147,55 @@ export default function Orders() {
     currentPage * itemsPerPage
   );
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navItems = [
+    { name: "Overview", path: "/admin/overview", icon: <LayoutDashboard size={20} /> },
+    { name: "Products", path: "/admin/products", icon: <Package size={20} /> },
+    { name: "Users", path: "/admin/users", icon: <Users size={20} /> },
+    { name: "Vendor", path: "/admin/vendor", icon: <Building size={20} /> },
+    { name: "Orders", path: "/admin/orders", icon: <FaShoppingCart size={20} /> },
+  
+    { name: "Feedback", path: "/admin/feedback", icon: <MessageSquare size={20} /> },
+    { name: "Complaint", path: "/admin/complaint", icon: <AlertCircle size={20} /> },
+    { name: "Reviews", path: "/admin/reviews", icon: <Star size={20} /> },
+  ];
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    // Add your logout logic here
+    navigate("/login");
+    console.log("Logging out...");
+  };
+
   return (
+    <>
+<div className="flex h-screen bg-[#F5F5F1]">
+      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} navItems={navItems} />
+    <div className="flex-1 flex flex-col overflow-auto">
+    <header className="flex items-center justify-between px-4 py-3 shadow bg-white border-b border-gray-200">
+          <div className="flex items-center space-x-4">
+            {/* Hamburger for mobile */}
+            <button
+              className="md:hidden text-[#A78074]"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              <Menu size={24} />
+            </button>
+
+            {/* Logo */}
+            <div className="text-xl font-bold text-[#A78074]">
+              Handmade Admin
+            </div>
+          </div>
+
+          {/* Logout Button */}
+          <button
+            onClick={handleLogout}
+            className="flex items-center space-x-2 text-white bg-[#A78074] hover:bg-white hover:text-[#A78074] border border-[#A78074] px-4 py-1.5 rounded-lg transition"
+          >
+            <LogOut size={18} />
+            <span>Logout</span>
+          </button>
+        </header>
     <PageLayout title="Orders">
       <div className="p-6 space-y-6">
 
@@ -320,5 +373,8 @@ export default function Orders() {
         )}
       </div>
     </PageLayout>
+    </div>
+    </div>
+    </> 
   );
 }

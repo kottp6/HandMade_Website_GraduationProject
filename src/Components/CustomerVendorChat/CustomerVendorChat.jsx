@@ -11,19 +11,21 @@ import {
   getDoc,
 } from "firebase/firestore";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import UserNavbar from "../UserNavbar/UserNavbar";
+import { FiImage } from "react-icons/fi";
 
 export default function CustomerVendorChat() {
   const { chatId } = useParams();
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
-  const [vendorName, setVendorName] = useState("");
+  const [vendorName, setVendorName] = useState("Vendor");
   const [vendorId, setVendorId] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const fileInputRef = useRef(null);
 
   const currentUser = auth.currentUser;
 
-  // Fetch vendor info from chat data
   useEffect(() => {
     const fetchChatAndVendor = async () => {
       try {
@@ -45,7 +47,6 @@ export default function CustomerVendorChat() {
     fetchChatAndVendor();
   }, [chatId]);
 
-  // Listen for messages
   useEffect(() => {
     const messagesRef = collection(db, "chats", chatId, "messages");
     const q = query(messagesRef, orderBy("createdAt"));
@@ -61,17 +62,56 @@ export default function CustomerVendorChat() {
     return () => unsubscribe();
   }, [chatId]);
 
+  const uploadToCloudinary = async (file) => {
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", "react_uploads"); // Replace with your actual preset
+    data.append("cloud_name", "dojghbhxq"); // Replace with your Cloudinary cloud name
+
+    const res = await fetch(
+      "https://api.cloudinary.com/v1_1/dojghbhxq/image/upload",
+      {
+        method: "POST",
+        body: data,
+      }
+    );
+    const json = await res.json();
+    return json.secure_url;
+  };
+
   const sendMessage = async () => {
-    if (!text.trim()) return;
+    if (!text.trim() && !imageFile) return;
 
-    const messageRef = collection(db, "chats", chatId, "messages");
-    await addDoc(messageRef, {
-      senderId: currentUser.uid,
-      text,
-      createdAt: serverTimestamp(),
-    });
+    let imageUrl = "";
 
-    setText("");
+    try {
+      if (imageFile) {
+        imageUrl = await uploadToCloudinary(imageFile);
+      }
+
+      const messageRef = collection(db, "chats", chatId, "messages");
+
+      await addDoc(messageRef, {
+        senderId: currentUser.uid,
+        text: text.trim(),
+        imageUrl,
+        createdAt: serverTimestamp(),
+      });
+
+      // Clear input after sending
+      setText("");
+      setImageFile(null);
+      fileInputRef.current.value = null;
+    } catch (err) {
+      console.error("Failed to send message:", err);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+    }
   };
 
   return (
@@ -90,31 +130,57 @@ export default function CustomerVendorChat() {
                   isUser ? "ml-auto text-right" : "mr-auto text-left"
                 }`}
               >
-                {/* Show vendor name above vendor's message */}
                 {!isUser && isVendor && (
                   <p className="text-xs text-gray-500 mb-1">{vendorName}</p>
                 )}
+
                 <div
-                  className={`p-2 rounded ${
+                  className={`p-2 rounded break-words ${
                     isUser
                       ? "bg-[#A78074] text-white"
                       : "bg-white border text-gray-800"
                   }`}
                 >
-                  {msg.text}
+                  {msg.text && (
+                    <p className="mb-1 whitespace-pre-line">{msg.text}</p>
+                  )}
+                  {msg.imageUrl && (
+                    <img
+                      src={msg.imageUrl}
+                      alt="sent"
+                      className="w-48 h-auto rounded mt-1"
+                    />
+                  )}
+                  {!msg.text && !msg.imageUrl && (
+                    <span className="text-red-500">[No message]</span>
+                  )}
                 </div>
               </div>
             );
           })}
         </div>
 
-        <div className="flex gap-2 mt-4">
+        <div className="flex gap-2 mt-4 items-center">
           <input
             value={text}
             onChange={(e) => setText(e.target.value)}
             className="flex-1 border px-3 py-2 rounded"
             placeholder="Type your message..."
           />
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            accept="image/*"
+            className="hidden"
+          />
+          <button
+            onClick={() => fileInputRef.current.click()}
+            className="bg-[#A78074] flex items-center justify-center text-white px-4 py-3 rounded cursor-pointer hover:bg-[#8c6f66] transition"
+            title="Upload image"
+          >
+            <FiImage />
+          </button>
           <button
             onClick={sendMessage}
             className="bg-[#A78074] text-white px-4 py-2 rounded"
@@ -122,6 +188,13 @@ export default function CustomerVendorChat() {
             Send
           </button>
         </div>
+
+        {/* Preview selected image (optional) */}
+        {imageFile && (
+          <div className="mt-2 text-sm text-gray-600">
+            Selected Image: {imageFile.name}
+          </div>
+        )}
       </div>
     </>
   );

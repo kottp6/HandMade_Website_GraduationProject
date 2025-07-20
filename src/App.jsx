@@ -41,6 +41,13 @@ import CustomerChats from './Components/CustomerChats/CustomerChats';
 import UserProfile from './Components/UserProfile/UserProfile';
 import FeedbackForm from './Components/FeedbackForm/FeedbackForm';
 import Overview from './pages/Overview';
+import AdminProducts from './pages/AdminProducts';
+import Users from './pages/Users';
+import Vendor from './pages/Vendor';
+import Orders from './pages/Orders';
+import Feedback from './pages/Feedback';
+import Complaint from './pages/Complaint';
+import Reviews from './pages/Reviews';
 import CheckoutVendor from './Components/CheckoutVendor/Checkout';
 import VendorSuccess from './Components/VendorSuccess/VendorSuccess';
 import VendorOrders from './Components/VendorOrders/VendorOrders';
@@ -95,7 +102,14 @@ useMessageNotification();
         <Route path="/vendorproduct/:id" element={<VendorProductDetails />} />
         
         <Route path='/vendor/showvendorproduct' element={<Showvendorproduct />} />
-        <Route path='/dashboard' element={<Overview />} />
+        <Route path='/admin/overview' element={<Overview />} />
+        <Route path='/admin/products' element={<AdminProducts />} />
+        <Route path='/admin/users' element={<Users />} />
+        <Route path='/admin/vendor' element={<Vendor />} />
+        <Route path='/admin/orders' element={<Orders />} />
+        <Route path='/admin/feedback' element={<Feedback />} />
+        <Route path='/admin/complaint' element={<Complaint />} />
+        <Route path='/admin/reviews' element={<Reviews />} />
         {/* Optional: add 404 route */}
         <Route path="*" element={<div className="text-center py-10 text-2xl">404 - Page Not Found</div>} />
       </Routes>
