@@ -11,6 +11,7 @@ export default function FeedbackForm() {
     const [message, setMessage] = useState("");
     const [rating, setRating] = useState(5); // Default rating
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
     const productId = combinedId?.split("_")[1];
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -22,11 +23,12 @@ export default function FeedbackForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!orderId || !userId || !productId) {
-        console.warn("Missing orderId, productId, or userId");
-        setError("Missing order, product, or user info.");
-        return;
+      console.warn("Missing orderId, productId, or userId");
+      setError("Missing order, product, or user info.");
+      return;
     }
-
+  
+    setLoading(true); // start loading
     try {
       await addDoc(collection(db, "Feedbacks"), {
         orderId,
@@ -36,18 +38,19 @@ export default function FeedbackForm() {
         rating,
         createdAt: new Date(),
       });
-
+  
       toast.success("Feedback submitted successfully!");
-      
-      // Clear form
       setMessage("");
       setRating(5);
       setError("");
     } catch (err) {
       console.error("Error submitting feedback:", err);
       toast.error("Failed to submit feedback.");
+    } finally {
+      setLoading(false); // stop loading
     }
   };
+  
 
   return (
     <>
@@ -83,11 +86,38 @@ export default function FeedbackForm() {
         {error && <p className="text-red-600 mb-2">{error}</p>}
 
         <button
-            type="submit"
-            className="bg-[#A78074] text-white px-4 py-2 rounded hover:bg-[#A78074]/80"
-        >
-            Submit Feedback
-        </button>
+  type="submit"
+  disabled={loading}
+  className="bg-[#A78074] text-white px-4 py-2 rounded hover:bg-[#A78074]/80 flex items-center justify-center gap-2 disabled:opacity-70"
+>
+  {loading ? (
+    <>
+      <svg
+        className="animate-spin h-5 w-5 text-white"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+        />
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+        />
+      </svg>
+      Submitting...
+    </>
+  ) : (
+    "Submit Feedback"
+  )}
+</button>
         </form>
     </div>
     </>

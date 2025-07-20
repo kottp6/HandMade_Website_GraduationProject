@@ -40,7 +40,12 @@ import Vendors from './Components/Vendors/Vendors';
 import CustomerChats from './Components/CustomerChats/CustomerChats';
 import UserProfile from './Components/UserProfile/UserProfile';
 import FeedbackForm from './Components/FeedbackForm/FeedbackForm';
-
+import Overview from './pages/Overview';
+import CheckoutVendor from './Components/CheckoutVendor/Checkout';
+import VendorSuccess from './Components/VendorSuccess/VendorSuccess';
+import VendorOrders from './Components/VendorOrders/VendorOrders';
+import VendorOrderDetails from './Components/VendorOrderDetails/VendorOrderDetails';
+import VendorPage from './Components/VendorPage/VendorPage';
 function App() {
 useMessageNotification();
   return (
@@ -71,20 +76,26 @@ useMessageNotification();
         <Route path="/customerchats" element={<CustomerChats />} />
         <Route path="/userprofile" element={<UserProfile />} />
         <Route path="/vendors/:vendorId" element={<VendorProfile />} />
+       
         <Route path="/chat/:chatId" element={<CustomerVendorChat />} />
         <Route path="/chat/:chatId" element={<ChatRoom />} />
         <Route path="/vendor/chats" element={<VendorChatsPage />} />
         <Route path="/vendor/chat/:chatId" element={<VendorChatPage />} />
+        <Route path="/vendor/orders" element={<VendorOrders />} />
+        <Route path="/vendor/orders/:orderId" element={<VendorOrderDetails />} />
+        <Route path="/vendor/:vendorId" element={<VendorPage />} />
           {/* <Route path="/vendor/addproduct" element={<VendorAddProducts />} />        */}
         <Route path="/vendor/favorites" element={<VendorFavorite />} />
         <Route path="/vendor/cart" element={<VendorCart />} />
+        <Route path="/checkoutvendor" element={<CheckoutVendor />} />
+        <Route path="/paymentsuccessvendor" element={<VendorSuccess />} />
         <Route path="/vendor/approvedproduct" element={<VendorProductsApproved />} />
         <Route path="/cart" element={<UserCart />} />
         <Route path="/vendorhome" element={<VendorHome />} />
         <Route path="/vendorproduct/:id" element={<VendorProductDetails />} />
         
         <Route path='/vendor/showvendorproduct' element={<Showvendorproduct />} />
-        <Route path='/dashboard' element={<Dashborad />} />
+        <Route path='/dashboard' element={<Overview />} />
         {/* Optional: add 404 route */}
         <Route path="*" element={<div className="text-center py-10 text-2xl">404 - Page Not Found</div>} />
       </Routes>

@@ -1,12 +1,27 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { db } from "../../firebase";
-import { doc, getDoc } from "firebase/firestore";
-import { FaRegHeart } from "react-icons/fa";
+import { db, auth } from "../../firebase";
+import {
+  doc,
+  getDoc,
+  collection,
+  addDoc,
+  query,
+  where,
+  getDocs,
+  updateDoc,
+  setDoc,
+} from "firebase/firestore";
+import { FaRegHeart, FaHeart } from "react-icons/fa";
+import toast from "react-hot-toast";
 
 export default function CardDetails({ onCategoryFetched, onProductIdFetched }) {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const [vendorName, setVendorName] = useState("");
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const user = auth.currentUser;
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -18,15 +33,101 @@ export default function CardDetails({ onCategoryFetched, onProductIdFetched }) {
           setProduct(productData);
           onCategoryFetched(productData.categoryName);
           onProductIdFetched(productData.id);
+
+          // Fetch vendor
+          if (productData.vendorId) {
+            const vendorRef = doc(db, "Vendors", productData.vendorId);
+            const vendorSnap = await getDoc(vendorRef);
+            if (vendorSnap.exists()) {
+              setVendorName(vendorSnap.data().displayName);
+            }
+          }
+
+          // Check favorite
+          if (user) {
+            const favQuery = query(
+              collection(db, "Favorites"),
+              where("userId", "==", user.uid),
+              where("productId", "==", docSnap.id)
+            );
+            const favSnap = await getDocs(favQuery);
+            setIsFavorite(!favSnap.empty);
+          }
         } else {
           console.log("No such product!");
         }
       } catch (error) {
-        console.error("Error fetching product:", error);
+        console.error("Error fetching product or vendor:", error);
       }
     };
+
     fetchProduct();
   }, [id, onCategoryFetched, onProductIdFetched]);
+
+  const handleAddToCart = async () => {
+    if (!user) return toast.error("Please log in to add to cart");
+
+    try {
+      const cartQuery = query(
+        collection(db, "Cart"),
+        where("userId", "==", user.uid),
+        where("productId", "==", product.id)
+      );
+      const cartSnap = await getDocs(cartQuery);
+
+      if (!cartSnap.empty) {
+        // Item already in cart, increase quantity
+        const cartItem = cartSnap.docs[0];
+        const cartData = cartItem.data();
+
+        if (cartData.quantity >= product.stock) {
+          return toast.error("No more stock available");
+        }
+
+        await updateDoc(cartItem.ref, {
+          quantity: cartData.quantity + 1,
+        });
+      } else {
+        await addDoc(collection(db, "Cart"), {
+          userId: user.uid,
+          productId: product.id,
+          quantity: 1,
+        });
+      }
+
+      toast.success("Added to Cart");
+    } catch (err) {
+      console.error("Failed to add to cart:", err);
+      toast.error("Failed to add to cart");
+    }
+  };
+
+  const handleFavoriteClick = async () => {
+    if (!user) return toast.error("Please log in to favorite");
+
+    try {
+      const favQuery = query(
+        collection(db, "Favorites"),
+        where("userId", "==", user.uid),
+        where("productId", "==", product.id)
+      );
+      const favSnap = await getDocs(favQuery);
+
+      if (favSnap.empty) {
+        await addDoc(collection(db, "Favorites"), {
+          userId: user.uid,
+          productId: product.id,
+        });
+        setIsFavorite(true);
+        toast.success("Added to Favorites");
+      } else {
+        toast("Already in Favorites");
+      }
+    } catch (err) {
+      console.error("Favorite failed:", err);
+      toast.error("Favorite failed");
+    }
+  };
 
   if (!product) {
     return (
@@ -37,16 +138,20 @@ export default function CardDetails({ onCategoryFetched, onProductIdFetched }) {
   }
 
   return (
-    <div className=" bg-white text-[#A78074] ">
-      {/* Cover Section */}
-      <div className="relative w-full  px-6 sm:px-12 lg:px-10 py-10">
-        <div
-          className="relative flex flex-col sm:flex-row items-center
-         sm:items-start gap-10 shadow-lg bg-[#f5f5f1] p-6 rounded-3xl "
-        >
-          <button className="absolute top-4 right-4 p-2 rounded-full   ">
-            <FaRegHeart className="text-[#A78074] text-2xl sm:text-3xl" />
+    <div className="bg-white text-[#A78074]">
+      <div className="relative w-full px-6 sm:px-12 lg:px-10 py-10">
+        <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-10 shadow-lg bg-[#f5f5f1] p-6 rounded-3xl">
+          <button
+            className="absolute top-4 right-4 p-2 rounded-full"
+            onClick={handleFavoriteClick}
+          >
+            {isFavorite ? (
+              <FaHeart className="text-red-500 text-2xl sm:text-3xl" />
+            ) : (
+              <FaRegHeart className="text-[#A78074] text-2xl sm:text-3xl" />
+            )}
           </button>
+
           <div className="w-full sm:w-[300px] lg:w-[400px] aspect-[4/5] overflow-hidden rounded-2xl shadow-2xl">
             <img
               src={product.imgURL}
@@ -54,32 +159,24 @@ export default function CardDetails({ onCategoryFetched, onProductIdFetched }) {
               className="w-full h-full object-cover"
             />
           </div>
+
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-[#A78074] mb-6">
-              {product.title}
-            </h1>
-            <div className="text-lg text-[#7A5C50] leading-relaxed font-medium mb-6">
-              {product.description}
+            <h1 className="text-3xl font-bold mb-6">{product.title}</h1>
+            <div className="text-lg font-medium mb-6">{product.description}</div>
+            <div className="text-2xl font-bold mt-6">{Math.floor(product.price)} EGP</div>
+            <div className="text-xl font-semibold mt-6 mb-6">
+              <span className="font-semibold">Available:</span>{" "}
+              <span className="font-bold">{product.stock}</span>
             </div>
-            <div className="text-2xl font-bold mt-6">{product.price} EGP</div>
-
-            <div className="text-xl font-semibold text-[#a58d83] mt-6 mb-6">
-              <span className="text-[#A78074]">Available:</span>{" "}
-              <span className="text-xl text-[#a58d83] font-bold">
-                {product.stock}
-              </span>
-            </div>
-
-            <div className="text-xl font-medium text-[#A78074] mt-6 mb-7">
-              <span className="text-[#A78074] font-semibold">Vendor:</span>{" "}
-              Hedra
+            <div className="text-xl font-medium mt-6 mb-7">
+              <span className="font-semibold">Vendor:</span>{" "}
+              {vendorName || "Loading..."}
             </div>
 
             {product.stock > 0 ? (
               <button
-                className="bg-[#A78074] text-white mt-1 px-8 py-3 rounded-lg border
-            border-[#A78074] hover:bg-white hover:text-[#A78074] transition
-            text-lg"
+                onClick={handleAddToCart}
+                className="bg-[#A78074] text-white mt-1 px-8 py-3 rounded-lg border border-[#A78074] hover:bg-white hover:text-[#A78074] transition text-lg"
               >
                 Add To Cart
               </button>

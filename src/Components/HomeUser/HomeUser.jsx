@@ -8,6 +8,7 @@ import Banner from "./Banner";
 import SpecialOffers from "./SpecialOffers";
 import Testimonials from "./Testimonials";
 import { Link } from "react-router-dom";
+import UserComplaints from "../UserComplaints/UserComplaints";
 
 export default function HomeUser() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -78,7 +79,7 @@ export default function HomeUser() {
             <Link to='/userproducts' className=" bg-[#A78074] w-50 mx-auto flex justify-center mt-10 text-white mt-1 px-6 py-2 rounded-lg border border-[#A78074] hover:bg-white hover:text-[#A78074] transition">View More</Link>
             <SpecialOffers />
             <Testimonials />
-          
+            <UserComplaints />
           </>
         )}
       </div>

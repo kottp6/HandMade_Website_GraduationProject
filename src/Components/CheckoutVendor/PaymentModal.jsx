@@ -115,7 +115,7 @@ const PaymentModal = ({ method, onClose, cartItems = [], total = 0 }) => {
   
       // 3. Navigate to success page
       onClose();
-      navigate("/paymentsuccess");
+      navigate("/paymentsuccessvendor");
   
     } catch (error) {
       console.error("Error saving order:", error);
@@ -126,7 +126,7 @@ const PaymentModal = ({ method, onClose, cartItems = [], total = 0 }) => {
 
   const handleCancel = () => {
     onClose();
-    navigate("/cart");
+    navigate("/vendor/cart");
   };
 
   /* ============ JSX ============ */

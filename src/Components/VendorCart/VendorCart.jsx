@@ -14,11 +14,14 @@ import { Link } from 'react-router-dom';
 import VendorNavbar from '../VendorNavbar/VendorNavbar';
 import { auth, db } from "../../firebase";
 import toast from "react-hot-toast";
-
+import { useNavigate } from "react-router-dom";
 const VendorAddToCartPage = () => {
+    const navigate = useNavigate();
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    
+      
     const fetchCart = async () => {
         const user = auth.currentUser;
         if (!user) {
@@ -300,13 +303,17 @@ const VendorAddToCartPage = () => {
                                         Delete All
                                     </button>
 
-                                    <button className="w-full cursor-pointer bg-[#A78074] text-white py-3 px-4 rounded-lg hover:bg-[#90675F] transition-colors duration-200 font-semibold mb-3">
+                                    <Link
+                                        to="/checkoutvendor"
+                                        state={{ total: totalPrice, cartItems }}
+                                        className="w-full text-center block cursor-pointer bg-[#A78074] text-white py-3 px-4 rounded-lg hover:bg-[#90675F] transition-colors duration-200 font-semibold mb-3"
+                                        >
                                         Proceed to Checkout
-                                    </button>
+                                    </Link>
 
-                                    <button className="w-full cursor-pointer bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-semibold">
-                                        <Link to={'/vendorhome'} >Continue Shopping</Link>
-                                    </button>
+                                    <Link to={'/vendorhome'} className="w-full text-center block cursor-pointer bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-semibold">
+                                        Continue Shopping
+                                    </Link>
                                 </motion.div>
                             </div>
                         </div>

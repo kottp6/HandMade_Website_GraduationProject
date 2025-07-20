@@ -174,17 +174,17 @@ export default function ProductCard({
         {/* Favorite Icon */}
         <button
           onClick={handleFavoriteClick}
-          className="absolute top-2 right-2 p-1"
+          className="absolute top-2 right-2 p-1 bg-[#A78074] rounded-xl p-2"
         >
           {isFavorited ? (
-            <FaHeart className="text-red-500 text-xl" />
+            <FaHeart className="text-white text-xl" />
           ) : (
             <FaRegHeart className="text-white text-xl" />
           )}
         </button>
 
         {/* View Icon */}
-        <div className="absolute top-2 left-2 group">
+        <div className="absolute top-2 left-2 group bg-[#A78074] p-1 rounded-xl">
           <button className="p-1">
             <FaEye onClick={handleViewDetails} className="text-[#eee1dd] text-xl" />
           </button>

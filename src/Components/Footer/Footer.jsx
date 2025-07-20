@@ -5,7 +5,7 @@ export default function Footer() {
   return (
     <footer className="bg-[#A78074] text-[#F5F5F1] text-sm gap-20">
       {/* Top Footer Grid */}
-      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-6 gap-20">
+      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-20">
         {/* Logo and Description */}
         <div className="col-span-1 md:col-span-2 space-y-3 text-justify leading-relaxed min-w-[160px] max-w-sm">
           <h2 className="text-2xl font-serif italic text-white">Handmade</h2>
@@ -17,19 +17,7 @@ export default function Footer() {
         </div>
 
         {/* Presets */}
-        <div className="col-span-1 min-w-[160px] text-left">
-          <h3 className="uppercase font-semibold mb-2 text-white">Presets</h3>
-          <ul className="space-y-1">
-            {["Dusty Brown", "Subtle Blue", "Magma", "Marble", "Oak Green"].map((item) => (
-              <li
-                key={item}
-                className="hover:text-[#F5F5F1] hover:underline cursor-pointer transition break-words"
-              >
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
+        
 
         {/* Collections */}
         <div className="col-span-1 min-w-[160px] text-left">
@@ -59,19 +47,6 @@ export default function Footer() {
               </li>
             ))}
           </ul>
-        </div>
-
-        {/* Currency Dropdown */}
-        <div className="col-span-1 min-w-[160px] text-left">
-          <h3 className="uppercase font-semibold mb-2 text-white">Currency</h3>
-          <select className="w-full bg-white text-[#A78074] border border-[#A78074] px-4 py-2 rounded-md cursor-pointer focus:outline-none">
-            <option>CAD $</option>
-            <option>Australia (CAD $)</option>
-            <option>Austria (CAD $)</option>
-            <option>Belgium (CAD $)</option>
-            <option>Canada (CAD $)</option>
-            <option>Czechia (CAD $)</option>
-          </select>
         </div>
       </div>
 

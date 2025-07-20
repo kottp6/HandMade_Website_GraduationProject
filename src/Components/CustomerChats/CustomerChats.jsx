@@ -44,7 +44,9 @@ export default function CustomerChats() {
   }, [currentUser]);
 
   if (loading) {
-    return <div className="text-center py-10 text-[#A78074]">Loading chats...</div>;
+    return  <div className="flex justify-center items-center py-8">
+    <div className="h-8 w-8 border-4 border-t-transparent border-[#A78074] rounded-full animate-spin"></div>
+  </div>
   }
 
   return (

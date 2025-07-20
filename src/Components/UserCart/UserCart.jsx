@@ -134,24 +134,44 @@ export default function UserCart() {
   }
 };
 
-  const deleteAll = async () => {
-    try {
-      const user = auth.currentUser;
-      const q = query(collection(db, "Cart"), where("userId", "==", user.uid));
-      const snapshot = await getDocs(q);
-
-      const batchDeletes = snapshot.docs.map((docSnap) =>
-        deleteDoc(doc(db, "Cart", docSnap.id))
-      );
-
-      await Promise.all(batchDeletes);
-      toast.success("All items deleted");
-      fetchCart();
-    } catch (err) {
-      console.error("Failed to delete all items:", err);
-      toast.error("Failed to delete all items");
+const deleteAll = async () => {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      toast.error("You must be logged in");
+      return;
     }
-  };
+
+    const q = query(collection(db, "Cart"), where("userId", "==", user.uid));
+    const snapshot = await getDocs(q);
+
+    const updates = snapshot.docs.map(async (docSnap) => {
+      const cartData = docSnap.data();
+      const { productId, quantity } = cartData;
+
+      const productRef = doc(db, "Products", productId);
+      const productSnap = await getDoc(productRef);
+
+      if (productSnap.exists()) {
+        const currentStock = productSnap.data().stock ?? 0;
+        await updateDoc(productRef, {
+          stock: currentStock + quantity, // return stock
+        });
+      }
+
+      await deleteDoc(doc(db, "Cart", docSnap.id)); // delete cart item
+    });
+
+    await Promise.all(updates);
+
+    toast.success("All items deleted and stock restored");
+    fetchCart(); // Refresh cart UI
+  } catch (err) {
+    console.error("Failed to delete all items:", err);
+    toast.error("Failed to delete all items");
+  }
+};
+
 
   const totalPrice = cartItems.reduce(
     (total, item) => total + (item.price * (item.quantity || 1)),

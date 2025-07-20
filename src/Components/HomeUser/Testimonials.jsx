@@ -14,7 +14,7 @@ export default function Testimonials() {
             transition={{ duration: 0.5, delay: i * 0.2 }}
           >
             <p className="text-sm text-gray-600 mb-2">“Amazing quality and fast delivery. Totally recommend!”</p>
-            <p className="font-semibold text-[#A78074]">- Happy Customer</p>
+            <p className="font-semibold text-[#A78074]">- Mahmoud Hussein</p>
           </motion.div>
         ))}
       </div>

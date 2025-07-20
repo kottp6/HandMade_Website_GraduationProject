@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaRegHeart, FaHeart, FaEye } from "react-icons/fa";
 import { db, auth } from "../../firebase";
-import { doc, setDoc, getDoc, deleteDoc, updateDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, deleteDoc, updateDoc, onSnapshot } from "firebase/firestore";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -11,10 +11,23 @@ export default function ProductCard({
   price,
   image,
   rating,
-  stock,
   categoryName, 
 }) {
   const [isFavorited, setIsFavorited] = useState(false);
+  const [stock, setStock] = useState(0);
+  const [addingToCart, setAddingToCart] = useState(false);
+  useEffect(() => {
+    const productRef = doc(db, "Products", id);
+
+    const unsubscribe = onSnapshot(productRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        setStock(data.stock); // Live stock update
+      }
+    });
+
+    return () => unsubscribe(); // Clean up on unmount
+  }, [id]);
   const navigate = useNavigate();
   const handleViewDetails = () => {
   navigate(`/product/${id}`);
@@ -71,7 +84,7 @@ export default function ProductCard({
       toast.error("You must be logged in to add to cart");
       return;
     }
-
+    setAddingToCart(true);
     const cartId = `${user.uid}_${id}`;
     const cartRef = doc(db, "Cart", cartId);
     const productRef = doc(db, "Products", id);
@@ -130,6 +143,8 @@ export default function ProductCard({
     } catch (error) {
       console.error("Failed to add to cart:", error);
       toast.error("Failed to add to cart.");
+    } finally {
+      setAddingToCart(false);
     }
   };
 
@@ -145,17 +160,17 @@ export default function ProductCard({
         {/* Favorite Icon */}
         <button
           onClick={handleFavoriteClick}
-          className="absolute top-2 right-2 p-1"
+          className="absolute top-2 right-2 p-1 bg-[#A78074] rounded-xl p-2"
         >
           {isFavorited ? (
-            <FaHeart className="text-red-500 text-xl" />
+            <FaHeart className="text-white text-xl" />
           ) : (
             <FaRegHeart className="text-white text-xl" />
           )}
         </button>
 
         {/* View Icon */}
-        <div className="absolute top-2 left-2 group">
+        <div className="absolute top-2 left-2 group bg-[#A78074] rounded-xl p-1">
           <button className="p-1">
             <FaEye onClick={handleViewDetails} className="text-[#eee1dd] text-xl" />
           </button>
@@ -183,9 +198,14 @@ export default function ProductCard({
           <p className="text-lg font-bold text-[#A78074]">{price} EGP</p>
           <button
             onClick={handleAddToCart}
-            className="bg-[#A78074] text-white mt-1 px-6 py-2 rounded-lg border border-[#A78074] hover:bg-white hover:text-[#A78074] transition"
+            disabled={addingToCart || stock === 0}
+            className={`mt-1 px-6 py-2 rounded-lg border transition ${
+              stock === 0
+                ? "bg-gray-400 text-white cursor-not-allowed"
+                : "bg-[#A78074] text-white border-[#A78074] hover:bg-white hover:text-[#A78074]"
+            }`}
           >
-            Add To Cart
+            {stock === 0 ? "Out of Stock" : addingToCart ? "Adding..." : "Add To Cart"}
           </button>
         </div>
       </div>
