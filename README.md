@@ -1,12 +1,56 @@
-# React + Vite
+🧵 Handmade E-Commerce Website
+Description:
+A full-stack handmade e-commerce platform that connects customers with vendors offering handcrafted products. The system supports a smooth and secure shopping experience, real-time admin control, and a vendor management system.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Key Features:
 
-Currently, two official plugins are available:
+🧍‍♂️ Customer Panel:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Browse and view handmade products with categories and details.
 
-## Expanding the ESLint configuration
+Add products to cart and favorites for future access.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Checkout with multiple payment methods: Cash, PayPal, and Visa.
+
+View personal orders and detailed order information.
+
+Submit feedback and complaints for vendor or product.
+
+Receive notifications sent by the admin (e.g., order updates, promotions).
+
+🛍 Vendor Panel:
+
+Register and create a vendor profile.
+
+Add new products with details, images, price, and stock.
+
+View and manage linked customers and orders.
+
+Products require admin approval before becoming publicly visible.
+
+Communicate and interact with interested customers.
+
+🛠 Admin Panel:
+
+Full access to monitor users, products, orders, feedback, and complaints.
+
+Approve or reject vendor-submitted products.
+
+Send notifications to customers and vendors.
+
+Analyze activity and ensure platform quality and compliance.
+
+Technologies Used:
+
+Frontend: React.js / Angular / HTML / Tailwind CSS / JavaScript
+
+Backend: Node.js / Firebase / Express / MongoDB
+
+Authentication: Firebase Auth / JWT
+
+Payment Integration: PayPal API / Stripe / Cash on Delivery
+
+State Management: Redux / Context API
+
+Storage: Firebase Storage / Cloudinary
+
