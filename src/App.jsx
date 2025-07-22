@@ -53,6 +53,10 @@ import VendorSuccess from './Components/VendorSuccess/VendorSuccess';
 import VendorOrders from './Components/VendorOrders/VendorOrders';
 import VendorOrderDetails from './Components/VendorOrderDetails/VendorOrderDetails';
 import VendorPage from './Components/VendorPage/VendorPage';
+import UserNotification from './Components/UserNotification/UserNotification';
+import VendorNotifications from './Components/VendorNotifications/VendorNotifications'
+import ProtectedRoute from './ProtectRoute/ProtectedRoute';
+import NotFound from './Components/NotFound/NotFound';
 function App() {
 useMessageNotification();
   return (
@@ -69,49 +73,51 @@ useMessageNotification();
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/vendorform" element={<VendorForm />} />
-        <Route path="/homeuser" element={<HomeUser />} />
-        <Route path="/userproducts" element={<UserProducts />} />
-        <Route path="/userproducts/:id" element={<ProductDetails />} />
-        <Route path="/userfavorite" element={<UserFavorite />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/userorders" element={<UserOrders />} />
-        <Route path="/orders/:orderId" element={<UserOrderDetails />} />
-        <Route path="/feedback/:orderId/:productId" element={<FeedbackForm />} />
-        <Route path='/vendors' element={<Vendors/>} />
-        <Route path="/paymentsuccess" element={<PaymentSuccess />} />
-        <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/customerchats" element={<CustomerChats />} />
-        <Route path="/userprofile" element={<UserProfile />} />
-        <Route path="/vendors/:vendorId" element={<VendorProfile />} />
+        <Route path="/homeuser" element={ <ProtectedRoute><HomeUser /></ProtectedRoute>} />
+        <Route path="/userproducts" element={<ProtectedRoute><UserProducts /></ProtectedRoute>} />
+        <Route path="/userproducts/:id" element={<ProtectedRoute><ProductDetails /></ProtectedRoute>} />
+        <Route path="/userfavorite" element={<ProtectedRoute><UserFavorite /></ProtectedRoute>} />
+        <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+        <Route path="/userorders" element={<ProtectedRoute><UserOrders /></ProtectedRoute>} />
+        <Route path="/orders/:orderId" element={<ProtectedRoute><UserOrderDetails /></ProtectedRoute>} />
+        <Route path="/feedback/:orderId/:productId" element={<ProtectedRoute><FeedbackForm /></ProtectedRoute>} />
+        <Route path='usernotification' element={<ProtectedRoute><UserNotification/></ProtectedRoute>}/>
+        <Route path='/vendors' element={<ProtectedRoute><Vendors/></ProtectedRoute>} />
+        <Route path="/paymentsuccess" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
+        <Route path="/product/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
+        <Route path="/customerchats" element={<ProtectedRoute><CustomerChats /></ProtectedRoute>} />
+        <Route path="/userprofile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+        <Route path="/vendors/:vendorId" element={<ProtectedRoute><VendorProfile /></ProtectedRoute>} />
        
-        <Route path="/chat/:chatId" element={<CustomerVendorChat />} />
-        <Route path="/chat/:chatId" element={<ChatRoom />} />
-        <Route path="/vendor/chats" element={<VendorChatsPage />} />
-        <Route path="/vendor/chat/:chatId" element={<VendorChatPage />} />
-        <Route path="/vendor/orders" element={<VendorOrders />} />
-        <Route path="/vendor/orders/:orderId" element={<VendorOrderDetails />} />
-        <Route path="/vendor/:vendorId" element={<VendorPage />} />
+        <Route path="/chat/:chatId" element={<ProtectedRoute><CustomerVendorChat /></ProtectedRoute>} />
+        <Route path="/chat/:chatId" element={<ProtectedRoute><ChatRoom /></ProtectedRoute>} />
+        <Route path="/vendor/chats" element={<ProtectedRoute><VendorChatsPage /></ProtectedRoute>} />
+        <Route path="/vendor/chat/:chatId" element={<ProtectedRoute><VendorChatPage /></ProtectedRoute>} />
+        <Route path="/vendor/orders" element={<ProtectedRoute><VendorOrders /></ProtectedRoute>} />
+        <Route path="/vendor/orders/:orderId" element={<ProtectedRoute><VendorOrderDetails /></ProtectedRoute>} />
+        <Route path="/vendor/:vendorId" element={<ProtectedRoute><VendorPage /></ProtectedRoute>} />
           {/* <Route path="/vendor/addproduct" element={<VendorAddProducts />} />        */}
-        <Route path="/vendor/favorites" element={<VendorFavorite />} />
-        <Route path="/vendor/cart" element={<VendorCart />} />
-        <Route path="/checkoutvendor" element={<CheckoutVendor />} />
-        <Route path="/paymentsuccessvendor" element={<VendorSuccess />} />
-        <Route path="/vendor/approvedproduct" element={<VendorProductsApproved />} />
-        <Route path="/cart" element={<UserCart />} />
-        <Route path="/vendorhome" element={<VendorHome />} />
-        <Route path="/vendorproduct/:id" element={<VendorProductDetails />} />
+        <Route path="/vendor/favorites" element={<ProtectedRoute><VendorFavorite /></ProtectedRoute>} />
+        <Route path="/vendor/cart" element={<ProtectedRoute><VendorCart /></ProtectedRoute>} />
+        <Route path="/checkoutvendor" element={<ProtectedRoute><CheckoutVendor /></ProtectedRoute>} />
+        <Route path="/paymentsuccessvendor" element={<ProtectedRoute><VendorSuccess /></ProtectedRoute>} />
+        <Route path="/vendor/approvedproduct" element={<ProtectedRoute><VendorProductsApproved /></ProtectedRoute>} />
+        <Route path="/cart" element={<ProtectedRoute><UserCart /></ProtectedRoute>} />
+        <Route path="/vendorhome" element={<ProtectedRoute><VendorHome /></ProtectedRoute>} />
+        <Route path='/vendornotification' element={<ProtectedRoute><VendorNotifications/></ProtectedRoute>} />
+        <Route path="/vendorproduct/:id" element={<ProtectedRoute><VendorProductDetails /></ProtectedRoute>} />
         
-        <Route path='/vendor/showvendorproduct' element={<Showvendorproduct />} />
-        <Route path='/admin/overview' element={<Overview />} />
-        <Route path='/admin/products' element={<AdminProducts />} />
-        <Route path='/admin/users' element={<Users />} />
-        <Route path='/admin/vendor' element={<Vendor />} />
-        <Route path='/admin/orders' element={<Orders />} />
-        <Route path='/admin/feedback' element={<Feedback />} />
-        <Route path='/admin/complaint' element={<Complaint />} />
-        <Route path='/admin/reviews' element={<Reviews />} />
+        <Route path='/vendor/showvendorproduct' element={<ProtectedRoute><Showvendorproduct /></ProtectedRoute>} />
+        <Route path='/admin/overview' element={<ProtectedRoute><Overview /></ProtectedRoute>} />
+        <Route path='/admin/products' element={<ProtectedRoute><AdminProducts /></ProtectedRoute>} />
+        <Route path='/admin/users' element={<ProtectedRoute><Users /></ProtectedRoute>} />
+        <Route path='/admin/vendor' element={<ProtectedRoute><Vendor /></ProtectedRoute>} />
+        <Route path='/admin/orders' element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+        <Route path='/admin/feedback' element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
+        <Route path='/admin/complaint' element={<ProtectedRoute><Complaint /></ProtectedRoute>} />
+        <Route path='/admin/reviews' element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
         {/* Optional: add 404 route */}
-        <Route path="*" element={<div className="text-center py-10 text-2xl">404 - Page Not Found</div>} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />
       <Toaster position="top-center" />

@@ -11,7 +11,7 @@ import { auth } from '../../firebase';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast'; 
 import Navbar from '../Navbar/Navbar';
-
+import { useState } from 'react';
 
 // Validation schema
 const schema = z.object({
@@ -20,6 +20,7 @@ const schema = z.object({
 });
 
 const Login = () => {
+  const [loading, setLoading] = useState(false);
   const {
     register,
     handleSubmit,
@@ -28,6 +29,7 @@ const Login = () => {
 
   const navigate = useNavigate();
   const onSubmit = async (data) => {
+    setLoading(true);
   try {
     // Admin credentials check (fixed email/password)
     if (data.email === "admin123@gmail.com" && data.password === "admin@123") {
@@ -62,7 +64,7 @@ const Login = () => {
     } else {
       toast.error("Unknown user role.");
     }
-
+    setLoading(false);
   } catch (error) {
     console.error('Login error:', error);
     switch (error.code) {
@@ -78,6 +80,7 @@ const Login = () => {
       default:
         toast.error('Login failed. Please try again.');
     }
+    setLoading(false);
   }
 };
   return (
@@ -125,13 +128,44 @@ const Login = () => {
 
           {/* Submit Button */}
           <motion.button
-            type="submit"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            className="w-full bg-[#A77F73] text-white py-2.5 rounded-md font-medium text-lg transition hover:bg-[#90675F]"
-          >
-            Login
-          </motion.button>
+              type="submit"
+              disabled={loading}
+              whileHover={{ scale: loading ? 1 : 1.03 }}
+              whileTap={{ scale: loading ? 1 : 0.97 }}
+              className={`w-full bg-[#A77F73] text-white py-2.5 rounded-md font-medium text-lg transition ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "hover:bg-[#90675F]"
+              }`}
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    />
+                  </svg>{" "}
+                  Logging in...
+                </span>
+              ) : (
+                "Login"
+              )}
+            </motion.button>
 
           {/* Link to Register */}
           <p className="text-center text-sm text-gray-600 mt-4">

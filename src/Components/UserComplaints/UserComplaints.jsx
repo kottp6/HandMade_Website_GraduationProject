@@ -36,7 +36,7 @@ export default function UserComplaints() {
   
       setSubject("");
       setMessage("");
-      toast.success("Complaint submitted successfully");
+      toast.success("Complaint submitted successfully, we will send notification to you soon");
     } catch (error) {
       console.error("Error submitting complaint:", error);
       toast.error("Failed to submit complaint");

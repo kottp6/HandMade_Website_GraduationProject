@@ -20,12 +20,9 @@ export default function VendorChatsPage() {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         const vendorId = user.uid;
-        console.log("Vendor UID:", vendorId);
-
         try {
           const q = query(collection(db, "chats"), where("vendorId", "==", vendorId));
           const snapshot = await getDocs(q);
-          console.log("Chats found:", snapshot.size);
 
           const chatData = await Promise.all(
             snapshot.docs.map(async (docSnap) => {
@@ -62,7 +59,6 @@ export default function VendorChatsPage() {
             })
           );
 
-          // Filter out null results from Promise.all
           setChats(chatData.filter((c) => c));
         } catch (err) {
           console.error("Error loading chats:", err);
@@ -84,31 +80,32 @@ export default function VendorChatsPage() {
 
   return (
     <>
-    <VendorNavbar></VendorNavbar>
-    <div className="max-w-3xl mx-auto py-10 px-4">
-      <h2 className="text-2xl font-bold text-[#A78074] mb-4">Customer Chats</h2>
+      <VendorNavbar />
+      <div className="max-w-3xl mx-auto py-10 px-4">
+        <h2 className="text-2xl font-bold text-[#A78074] mb-4">Customer Chats</h2>
 
-      {loading ? (
-        <p className="text-center text-gray-500">Loading...</p>
-      ) : chats.length === 0 ? (
-        <p className="text-center text-gray-500">No chats found</p>
-      ) : (
-        <ul className="space-y-4">
-          {chats.map((chat) => (
-            <li
-              key={chat.id}
-              onClick={() => handleOpenChat(chat.id)}
-              className="cursor-pointer p-4 bg-white border rounded shadow hover:bg-gray-100"
-            >
-              <div className="font-semibold text-[#A78074]">{chat.customerName}</div>
-              <div className="text-sm text-gray-600">Last: {chat.lastMessage}</div>
-              <div className="text-xs text-gray-400">{chat.updatedAt}</div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+        {loading ? (
+          <div className="flex justify-center items-center h-32">
+            <div className="w-10 h-10 border-4 border-[#A78074] border-dashed rounded-full animate-spin"></div>
+          </div>
+        ) : chats.length === 0 ? (
+          <p className="text-center text-gray-500">No chats found</p>
+        ) : (
+          <ul className="space-y-4">
+            {chats.map((chat) => (
+              <li
+                key={chat.id}
+                onClick={() => handleOpenChat(chat.id)}
+                className="cursor-pointer p-4 bg-white border rounded shadow hover:bg-gray-100"
+              >
+                <div className="font-semibold text-[#A78074]">{chat.customerName}</div>
+                <div className="text-sm text-gray-600">Last: {chat.lastMessage}</div>
+                <div className="text-xs text-gray-400">{chat.updatedAt}</div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </>
   );
-
 }

@@ -89,7 +89,7 @@ const Hero = () => {
                 transition={{ type: 'spring', stiffness: 300 }}
                 >
                 <Link
-                    to="/products"
+                    to="/login"
                     className=" w-[40%] text-center inline-block bg-[#A77F73] hover:bg-[#90675F] text-white px-6 py-3 rounded-b-xl text-lg transition"
                 >
                     Shop Now
@@ -227,9 +227,9 @@ const Hero = () => {
               <div className="p-4 text-center">
                 <h3 className="text-lg font-semibold text-[#A77F73]">{product.name}</h3>
                 <p className="text-gray-600 mb-2">{product.price}</p>
-                <button className="bg-[#A77F73] hover:bg-[#90675F] text-white py-2 px-4 rounded-md text-sm transition">
+                <Link to="/login" className="bg-[#A77F73] hover:bg-[#90675F] text-white py-2 px-4 rounded-md text-sm transition">
                   View Details
-                </button>
+                </Link>
               </div>
             </motion.div>
           ))}

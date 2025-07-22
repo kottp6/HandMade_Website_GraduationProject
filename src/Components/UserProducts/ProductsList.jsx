@@ -18,12 +18,12 @@ export default function ProductList({ products, categories = [] }) {
 
   // categories
   const filterCategories = products.filter((p) => {
-    const inCategory =
-      selectedCategory === "All" || p.category === selectedCategory;
-
+    const isApproved = p.status === "approved"; // ✅ Only approved products
+    const inCategory = selectedCategory === "All" || p.category === selectedCategory;
+  
     const price = parseFloat(p.price);
     let inPriceRange = true;
-
+  
     if (customPriceEnabled) {
       const min = parseFloat(customMinPrice) || 0;
       const max = parseFloat(customMaxPrice) || Infinity;
@@ -46,9 +46,10 @@ export default function ProductList({ products, categories = [] }) {
           inPriceRange = true;
       }
     }
-
-    return inCategory && inPriceRange;
+  
+    return isApproved && inCategory && inPriceRange; // ✅ Apply approval status filter
   });
+  
 
   const totalPages = Math.ceil(filterCategories.length / itemPage);
   const starIndex = (currentPage - 1) * itemPage;

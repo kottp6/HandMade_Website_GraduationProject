@@ -6,6 +6,8 @@ import {
   deleteDoc,
   updateDoc,
   doc,
+  addDoc,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../firebase";
 import {
@@ -62,7 +64,7 @@ export default function Complaint() {
     if (searchTerm.trim() !== "") {
       result = result.filter(
         (c) =>
-          c.user_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          c.userId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           c.message?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
@@ -93,7 +95,8 @@ export default function Complaint() {
   const handleSaveEdit = async (updated) => {
     try {
       await updateDoc(doc(db, "Complaints", updated.id), {
-        user_id: updated.user_id,
+        userId: updated.userId,
+        subject: updated.subject,
         message: updated.message,
         status: updated.status,
       });
@@ -102,10 +105,20 @@ export default function Complaint() {
       );
       setComplaints(updatedList);
       showToast("Complaint updated.");
+
+      if (updated.status === "resolved") {
+        await addDoc(collection(db, "Notifications"), {
+          userId: updated.userId,
+          subject: updated.subject,
+          message: `Your complaint has been resolved.`,
+          createdAt: serverTimestamp(),
+        });
+      }
     } catch (err) {
       console.error("Failed to update complaint:", err);
     }
   };
+
 
   const showToast = (msg) => {
     setToastMsg(msg);
@@ -252,7 +265,7 @@ export default function Complaint() {
                   <div className="text-sm text-gray-700 space-y-2 leading-relaxed">
                     <p>
                       <span className="font-medium text-gray-600">User ID:</span>{" "}
-                      <span className="text-[#A78074]">{complaint.user_id}</span>
+                      <span className="text-[#A78074]">{complaint.userId}</span>
                     </p>
                     <p>
                       <span className="font-medium text-gray-600">Email:</span>{" "}

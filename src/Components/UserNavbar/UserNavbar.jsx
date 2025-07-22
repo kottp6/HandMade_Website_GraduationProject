@@ -5,6 +5,7 @@ import { signOut } from 'firebase/auth';
 import { doc, getDoc, collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
 import { FiMenu, FiX } from 'react-icons/fi';
 import logo from "../../assets/logo.png";
+import { IoNotifications } from "react-icons/io5";
 
 export default function UserNavbar() {
   const [userName, setUserName] = useState("User");
@@ -12,7 +13,25 @@ export default function UserNavbar() {
   const [hasNewMessages, setHasNewMessages] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const [hasNewNotifications, setHasNewNotifications] = useState(false);
 
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (!user) return;
+  
+    const notificationsQuery = query(
+      collection(db, "Notifications"),
+      where("userId", "==", user.uid)
+    );
+  
+    const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
+      const hasNew = snapshot.docs.some((doc) => doc.data().read === false);
+      setHasNewNotifications(hasNew);
+    });
+  
+    return () => unsubscribe();
+  }, []);
+  
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
@@ -146,6 +165,14 @@ export default function UserNavbar() {
           <Link to="/userprofile" className="text-gray-700 font-medium">
             Welcome, <span className="text-[#1B8354]">{userName}</span>
           </Link>
+          <div className="relative">
+            <Link to='/usernotification' className="relative text-xl text-gray-700 hover:text-[#1B8354]">
+              <IoNotifications />
+              {hasNewNotifications && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+              )}
+            </Link>
+        </div>
           <button
             onClick={handleLogout}
             className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"

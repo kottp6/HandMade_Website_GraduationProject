@@ -117,6 +117,7 @@ const Register = () => {
         role: data.role,
         createdAt: new Date().toISOString(),
         displayName: `${data.firstName} ${data.lastName}`,
+        ...(data.role === "vendor" && { status: "pending" }),
       };
       await setDoc(doc(db, "Users", user.uid), userData);
       toast.success("Account created successfully!");

@@ -7,14 +7,35 @@ import toast from 'react-hot-toast';
 import logo from "../../assets/logo.png";
 import useVendorNotification from '../../hooks/useVendorNotification';
 import { Menu, X } from 'lucide-react';
+import { IoNotifications } from "react-icons/io5";
 
 export default function VendorNavbar() {
   const [displayName, setDisplayName] = useState('');
+  const [vendorStatus, setVendorStatus] = useState(null); // 🔸 store vendor status
   const [hasNewMessage, setHasNewMessage] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const [hasNewNotifications, setHasNewNotifications] = useState(false);
+ 
   const vendorId = auth.currentUser?.uid;
+
+   useEffect(() => {
+      const user = auth.currentUser;
+      if (!user) return;
+    
+      const notificationsQuery = query(
+        collection(db, "Notifications"),
+        where("userId", "==", user.uid)
+      );
+    
+      const unsubscribe = onSnapshot(notificationsQuery, (snapshot) => {
+        const hasNew = snapshot.docs.some((doc) => doc.data().read === false);
+        setHasNewNotifications(hasNew);
+      });
+    
+      return () => unsubscribe();
+    }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -24,9 +45,11 @@ export default function VendorNavbar() {
           const vendorSnap = await getDoc(vendorRef);
           const vendorData = vendorSnap.data();
           setDisplayName(vendorData?.displayName || "Vendor");
+          setVendorStatus(vendorData?.status || "pending"); // 🔸 set status
         } catch (error) {
-          console.error("Error fetching vendor displayName:", error);
+          console.error("Error fetching vendor data:", error);
           setDisplayName("Vendor");
+          setVendorStatus("pending");
         }
       }
     });
@@ -104,8 +127,14 @@ export default function VendorNavbar() {
         >
           <div className="flex flex-col md:flex-row gap-4 md:gap-6 mx-auto text-gray-700 font-medium text-sm sm:text-base">
             <Link to="/vendorhome" className="hover:text-[#1B8354]">Home</Link>
-            <Link to="/vendor/showvendorproduct" className="hover:text-[#1B8354]">Add Products</Link>
-            <Link to="/vendor/approvedproduct" className="hover:text-[#1B8354]">Approved Products</Link>
+
+            {/* Only show these links if status is "approved" */}
+            {vendorStatus === "Approved" && (
+              <>
+                <Link to="/vendor/showvendorproduct" className="hover:text-[#1B8354]">Add Products</Link>
+                <Link to="/vendor/approvedproduct" className="hover:text-[#1B8354]">Approved Products</Link>
+              </>
+            )}
 
             <div className="relative">
               <Link to="/vendor/cart" className="hover:text-[#1B8354]">Cart</Link>
@@ -117,7 +146,6 @@ export default function VendorNavbar() {
             </div>
 
             <Link to="/vendor/favorites" className="hover:text-[#1B8354]">Favorites</Link>
-
             <Link to="/vendor/orders" className="hover:text-[#1B8354]">Orders</Link>
 
             <div className="relative">
@@ -134,6 +162,14 @@ export default function VendorNavbar() {
           <Link to={`/vendor/${vendorId}`} className="text-gray-700 font-medium">
             Welcome, <span className="text-[#1B8354]">{displayName}</span>
           </Link>
+          <div className="relative">
+                      <Link to='/vendornotification' className="relative text-xl text-gray-700 hover:text-[#1B8354]">
+                        <IoNotifications />
+                        {hasNewNotifications && (
+                          <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+                        )}
+                      </Link>
+                  </div>
           <button
             onClick={logout}
             className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition"
