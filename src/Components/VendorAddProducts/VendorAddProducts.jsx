@@ -18,14 +18,18 @@ const AddProduct = ({ selectedProduct, onSaveComplete }) => {
   const isEditMode = selectedProduct !== null;
 
   const categoryMap = {
-    'Electronics': 1,
+    'Textiles': 1,
     'Clothing': 2,
-    'Books': 3,
-    'Home & Garden': 4,
-    'Sports': 5,
-    'Beauty': 6,
-    'Food & Beverage': 7,
-    'Other': 8
+    'Woodwork': 3,
+    'Home Decor': 4,
+    'Accessories': 5,
+    'Wall Art': 6,
+    'Candles': 7,
+    'Jewelry' : 8,
+    'Kitchenware': 9,
+    'Plants & Terrariums' : 10,
+    'Others' : 11
+
   };
   const categories = Object.keys(categoryMap);
   const getCategoryId = (name) => categoryMap[name] || 0;
