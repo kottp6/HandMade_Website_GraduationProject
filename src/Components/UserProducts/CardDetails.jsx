@@ -23,6 +23,31 @@ export default function CardDetails({ onCategoryFetched, onProductIdFetched }) {
 
   const user = auth.currentUser;
 
+  const [averageRating, setAverageRating] = useState(0);
+  useEffect(() => {
+      const fetchAverageRating = async () => {
+        try {
+          const feedbackRef = collection(db, "Feedbacks");
+          const q = query(feedbackRef, where("productId", "==", id));
+          const snapshot = await getDocs(q);
+  
+          let total = 0;
+          let count = 0;
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            if (data.rating) {
+              total += data.rating;
+              count++;
+            }
+          });
+  
+          setAverageRating(count > 0 ? (total / count).toFixed(1) : 0);
+        } catch (err) {
+          console.error("Error fetching average rating:", err);
+        }
+      };
+      fetchAverageRating();
+    }, [id]);
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -164,6 +189,25 @@ export default function CardDetails({ onCategoryFetched, onProductIdFetched }) {
             <h1 className="text-3xl font-bold mb-6">{product.title}</h1>
             <div className="text-lg font-medium mb-6">{product.description}</div>
             <div className="text-2xl font-bold mt-6">{Math.floor(product.price)} EGP</div>
+            <div className="flex items-center gap-1 mt-6">
+            {[...Array(5)].map((_, i) => (
+              <svg
+                key={i}
+                className={`w-5 h-5 ${
+                  i < Math.round(averageRating)
+                    ? "text-yellow-400"
+                    : "text-gray-300"
+                }`}
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.063 3.278a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.063 3.278c.3.921-.755 1.688-1.54 1.118L10 13.347l-2.8 2.034c-.785.57-1.84-.197-1.54-1.118l1.063-3.278a1 1 0 00-.364-1.118L3.56 8.705c-.783-.57-.38-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.063-3.278z" />
+              </svg>
+            ))}
+            <span className="text-sm font-semibold text-[#A78074] ml-1 mr-2 ">
+              {averageRating || "0"} / 5
+            </span>
+          </div>
             <div className="text-xl font-semibold mt-6 mb-6">
               <span className="font-semibold">Available:</span>{" "}
               <span className="font-bold">{product.stock}</span>

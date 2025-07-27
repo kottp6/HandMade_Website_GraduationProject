@@ -26,7 +26,7 @@ export default function ProductCard({
   const [isFavorited, setIsFavorited] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const [stock, setStock] = useState(0);
-  const [averageRating, setAverageRating] = useState(0);
+  
 
   const navigate = useNavigate();
 
@@ -42,6 +42,7 @@ export default function ProductCard({
   }, [id]);
 
   // Fetch average rating
+  const [averageRating, setAverageRating] = useState(0);
   useEffect(() => {
     const fetchAverageRating = async () => {
       try {
@@ -213,7 +214,7 @@ export default function ProductCard({
               </svg>
             ))}
             <span className="text-sm font-semibold text-[#A78074] ml-1 ">
-              {averageRating || "0.0"} / 5
+              {averageRating || "0"} / 5
             </span>
           </div>
           

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaRegHeart, FaHeart, FaEye } from "react-icons/fa";
 import { db, auth } from "../../firebase";
-import { doc, setDoc, getDoc, deleteDoc, updateDoc, onSnapshot } from "firebase/firestore";
+import { doc, setDoc, getDoc, deleteDoc, updateDoc, onSnapshot, collection, query, where, getDocs } from "firebase/firestore";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -148,6 +148,32 @@ export default function ProductCard({
     }
   };
 
+  const [averageRating, setAverageRating] = useState(0);
+  useEffect(() => {
+    const fetchAverageRating = async () => {
+      try {
+        const feedbackRef = collection(db, "Feedbacks");
+        const q = query(feedbackRef, where("productId", "==", id));
+        const snapshot = await getDocs(q);
+
+        let total = 0;
+        let count = 0;
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.rating) {
+            total += data.rating;
+            count++;
+          }
+        });
+
+        setAverageRating(count > 0 ? (total / count).toFixed(1) : 0);
+      } catch (err) {
+        console.error("Error fetching average rating:", err);
+      }
+    };
+    fetchAverageRating();
+  }, [id]);
+
   return (
     <div className="bg-[#f5f5f1] w-full max-w-xs rounded-xl shadow-md p-4 transition hover:scale-102 duration-200 relative">
       <div className="relative">
@@ -186,12 +212,34 @@ export default function ProductCard({
           {title}
         </h2>
         <div className="flex justify-between items-center mt-2 text-base">
-          <div className="flex items-center gap-1 text-yellow-500 font-semibold">
-            ⭐ {rating ?? 0} / 5
+        <div className="flex justify-between items-center mt-2">
+          <div className="flex items-center gap-1">
+            {[...Array(5)].map((_, i) => (
+              <svg
+                key={i}
+                className={`w-5 h-5 ${
+                  i < Math.round(averageRating)
+                    ? "text-yellow-400"
+                    : "text-gray-300"
+                }`}
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.063 3.278a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.063 3.278c.3.921-.755 1.688-1.54 1.118L10 13.347l-2.8 2.034c-.785.57-1.84-.197-1.54-1.118l1.063-3.278a1 1 0 00-.364-1.118L3.56 8.705c-.783-.57-.38-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.063-3.278z" />
+              </svg>
+            ))}
+            <span className="text-sm font-semibold text-[#A78074] ml-1 mr-2 ">
+              {averageRating || "0"} / 5
+            </span>
           </div>
-          <div className="flex items-center text-[#a27466] font-bold">
+          
+          <span className="text-[#a27466] font-bold">
+            Available: {stock}
+          </span>
+        </div>
+          {/* <div className="flex items-center text-[#a27466] font-bold">
             <span className="text-[#A78074] mr-1">Available:</span> {stock}
-          </div>
+          </div> */}
         </div>
         <p className="text-sm text-gray-500 mt-2">Category: {categoryName}</p>
         <div className="flex justify-between items-center mt-4">
