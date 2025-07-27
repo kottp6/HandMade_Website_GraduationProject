@@ -10,7 +10,7 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, db } from "../../firebase";
 import Navbar from "../Navbar/Navbar";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-
+import { Link } from 'react-router-dom';
 // Zod schema with role field
 const schema = z
   .object({
@@ -357,7 +357,15 @@ const Register = () => {
                   "Register"
                 )}
               </motion.button>
+              {/* Link to Register */}
+          <p className="text-center text-sm text-gray-600 mt-4">
+            Do you have an account?{' '}
+            <Link to="/login" className="text-[#A77F73] hover:underline">
+              Login
+            </Link>
+          </p>
             </div>
+            
             {firebaseError && (
               <p className="text-red-600 text-center mt-2">{firebaseError}</p>
             )}

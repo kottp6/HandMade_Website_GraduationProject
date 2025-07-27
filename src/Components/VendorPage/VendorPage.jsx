@@ -98,7 +98,12 @@ export default function VendorPage() {
               </p>
             </div>
 
-            
+            <button
+              onClick={handleChatClick}
+              className="mt-6 inline-flex items-center gap-2 bg-[#A78074] hover:bg-[#8c6152] text-white px-6 py-2 rounded-full transition"
+            >
+              <FaComments /> Chat with Vendor
+            </button>
           </div>
         </div>
       </motion.div>

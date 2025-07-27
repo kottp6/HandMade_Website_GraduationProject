@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Newsletter from '../Newsletter/Newsletter';
 import Navbar from '../Navbar/Navbar';
-
+import {motion} from 'framer-motion'
 
 
 const Journal = () => {
@@ -57,16 +57,19 @@ const Journal = () => {
       <Navbar />
       <div className="bg-[#F5F5F1] text-[#A78074] font-sans">
         <div className="max-w-7xl mx-auto px-4 py-16">
-          <div className="flex items-center gap-4 mb-12">
-            <Link to="/" className="flex items-center text-[#A78074] hover:text-[#7e5d4c] transition">
-              <span className="text-xl">←</span>
-              <span className="ml-1 text-sm font-medium">Home</span>
-            </Link>
-          </div>
+          
 
-          <h1 className="text-5xl font-[Playfair_Display] mb-12">Journal</h1>
-
-          {loading && <p className="text-center text-gray-500">Loading...</p>}
+        <motion.h2
+          className="text-5xl font-light mb-16 border-b border-[#E2DCD5] pb-4"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          Journal
+        </motion.h2>
+          {loading && <div className="flex justify-center mt-6">
+    <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-[#A78074]"></div>
+  </div>}
           {error && <p className="text-center text-red-500">{error}</p>}
 
           {!loading && !error && featured && (
@@ -141,48 +144,9 @@ const Journal = () => {
           )}
         </div>
 
-        <Newsletter />
+        {/* <Newsletter /> */}
 
-        {/* Instagram Section */}
-        <div className="bg-[#faf8f6] w-full py-20 px-4 text-center">
-          <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-12">
-            <div className="hidden lg:flex flex-col gap-4">
-              <img src="https://handmade-demo.myshopify.com/cdn/shop/files/Mask_group-3_300x.jpg?v=1663336955" alt="left1" className="w-24 h-32 object-cover rounded" />
-              <img src="https://handmade-demo.myshopify.com/cdn/shop/files/Mask_group-2_350x.jpg?v=1663337062" alt="left2" className="w-24  ml-16 h-24 object-cover rounded" />
-            </div>
-
-            <div className="text-center max-w-lg mx-auto">
-              <p className="uppercase text-[10px] tracking-[2px] text-gray-500 mb-2">Instagram</p>
-              <h2 className="text-[28px] font-[Playfair_Display] text-[#a78074] mb-6">Follow Us on Instagram</h2>
-
-              <div className="flex items-center justify-center gap-4 mb-4">
-                <img
-                  src="https://handmade-demo-decor.myshopify.com/cdn/shop/files/mathilde-langevin-TJ6eg8okyNs-unsplash_3_130x.jpg?v=1663738803"
-                  alt="avatar"
-                  className="rounded-full w-16 h-16 object-cover"
-                />
-                <div className="text-left">
-                  <p className="text-[#a78074] font-semibold">@handmade_studio</p>
-                  <p className="text-sm text-gray-500">16k Followers</p>
-                </div>
-              </div>
-
-              <a
-                href="https://instagram.com/handmade_studio"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block px-6 py-2 border border-[#a78074] text-[#a78074] hover:bg-[#a78074] hover:text-white transition duration-300 rounded"
-              >
-                Follow on Instagram →
-              </a>
-            </div>
-
-            <div className="hidden lg:flex flex-col gap-4">
-              <img src="https://handmade-demo.myshopify.com/cdn/shop/articles/frederick-medina-eyLclwqq5ls-unsplash_1_3_fec091af-2495-46b2-be58-eaca2f0ea602_533x.jpg?v=1751615977" alt="right1" className="w-24 h-24 object-cover rounded" />
-              <img src="https://handmade-demo.myshopify.com/cdn/shop/articles/frederick-medina-eyLclwqq5ls-unsplash_1_1_179a7722-e002-4a8e-98dc-e62890f3a34d_533x.jpg?v=1751615934" alt="right2" className="w-24 h-32 ml-12 object-cover rounded" />
-            </div>
-          </div>
-        </div>
+        
       </div>
       
     </>

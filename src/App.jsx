@@ -1,6 +1,9 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { AnimatePresence } from "framer-motion";
+import { useEffect, useState } from 'react';
+import SplashScreen from './Components/SplashScreen/SplashScreen' 
 import useMessageNotification from './hooks/useMessageNotification';
 import Hero from './Components/Hero/Hero';
 import Login from './Components/Login/Login';
@@ -57,8 +60,25 @@ import UserNotification from './Components/UserNotification/UserNotification';
 import VendorNotifications from './Components/VendorNotifications/VendorNotifications'
 import ProtectedRoute from './ProtectRoute/ProtectedRoute';
 import NotFound from './Components/NotFound/NotFound';
+import VendorDetails from './Components/VendorHome/VendorDetails'
 function App() {
-useMessageNotification();
+  const [loading, setLoading] = useState(true);
+  useMessageNotification();
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return (
+      <AnimatePresence mode="wait">
+        <SplashScreen key="splash" />
+      </AnimatePresence>
+    );
+  }
+
   return (
     <>
       
@@ -83,6 +103,7 @@ useMessageNotification();
         <Route path="/feedback/:orderId/:productId" element={<ProtectedRoute><FeedbackForm /></ProtectedRoute>} />
         <Route path='usernotification' element={<ProtectedRoute><UserNotification/></ProtectedRoute>}/>
         <Route path='/vendors' element={<ProtectedRoute><Vendors/></ProtectedRoute>} />
+        <Route path='/productDetails/:id' element={<ProtectedRoute><VendorDetails></VendorDetails></ProtectedRoute> } />
         <Route path="/paymentsuccess" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
         <Route path="/product/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
         <Route path="/customerchats" element={<ProtectedRoute><CustomerChats /></ProtectedRoute>} />

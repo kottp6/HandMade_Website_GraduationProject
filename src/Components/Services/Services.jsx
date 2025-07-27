@@ -67,23 +67,22 @@ export default function Services() {
   return (
     <>
     <Navbar></Navbar>
-    <section className="bg-[#F8F1EF] py-20 px-6 font-garamond text-[#5B4033]">
-      <div className="max-w-7xl mx-auto text-center">
+    <section className="bg-[#F8F1EF] py-20 px-6 font-garamond text-[#A78074]">
+      <div className="max-w-7xl mx-auto">
         <motion.h2
-          initial={{ y: -30, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.7 }}
-          viewport={{ once: true }}
-          className="text-4xl md:text-5xl font-semibold mb-6"
+          className="text-5xl font-light mb-16 border-b border-[#E2DCD5] pb-4"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
         >
-          Our Artisan Services
+          Services
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-lg max-w-2xl mx-auto mb-12 text-gray-700"
+          className="text-lg text-start max-w-2xl  mb-12 text-gray-700"
         >
           At Handmade Studio, we believe in quality, sustainability, and soulful craftsmanship. Here's how we bring our values to life.
         </motion.p>

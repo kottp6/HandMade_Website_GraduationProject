@@ -4,12 +4,12 @@ import { Link } from 'react-router-dom';
 import { FaHandsHelping, FaLeaf, FaTruck, FaGift } from 'react-icons/fa';
 import heroImg from '../../assets/hero.jpg'; 
 import aboutImage from '../../assets/about.jpg';
-import product1 from '../../assets/Handwoven_Basket.jpg';
-import product2 from '../../assets/Clay_Pottery_Set.webp';
-import product3 from '../../assets/Organic_Cotton_Scarf.jpg';
-import product4 from '../../assets/Rustic_Wooden_Frame.jpg';
 import Navbar from '../Navbar/Navbar';
- 
+import { useEffect, useState } from 'react';
+import { collection, getDocs, query, where, limit } from 'firebase/firestore';
+import { db } from '../../firebase';
+import ScrollToTopButton from '../ScrollToTopButton/ScrollToTopButton';
+import ContactUs from '../ContactUs/ContactUs';
 const services = [
   {
     title: 'Handcrafted with Love',
@@ -37,38 +37,38 @@ const services = [
   },
 ];
 
-const products = [
-  {
-    id: 1,
-    name: 'Handwoven Basket',
-    price: '$29.99',
-    image: product1, // Replace with your own image paths
-  },
-  {
-    id: 2,
-    name: 'Clay Pottery Set',
-    price: '$49.00',
-    image: product2,
-  },
-  {
-    id: 3,
-    name: 'Organic Cotton Scarf',
-    price: '$24.50',
-    image: product3,
-  },
-  {
-    id: 4,
-    name: 'Rustic Wooden Frame',
-    price: '$39.90',
-    image: product4,
-  },
-];
+
+
 
 const Hero = () => {
+
+  const [products, setProducts] = useState([]);
+
+useEffect(() => {
+  const fetchProducts = async () => {
+    try {
+      const q = query(
+        collection(db, 'Products'),
+        where('status', '==', 'approved'),
+        limit(4)
+      );
+      const querySnapshot = await getDocs(q);
+      const productList = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setProducts(productList);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
+
+  fetchProducts();
+}, []);
   return (
     <div>
     <Navbar />
-    <section className=" py-16 px-4 md:px-10">
+    <section className=" py-16 px-4 md:px-10" id='hero'>
       <div className="max-w-7xl mx-auto flex flex-col-reverse md:flex-row items-center gap-10">
         {/* Text Section */}
         <motion.div
@@ -160,6 +160,7 @@ const Hero = () => {
         </motion.div>
       </div>
     </section>
+    
     {/* Services */}
      <section className="bg-white py-16 px-4 md:px-10">
       <div className="max-w-7xl mx-auto">
@@ -220,13 +221,13 @@ const Hero = () => {
               viewport={{ once: true }}
             >
               <img
-                src={product.image}
-                alt={product.name}
+                src={product.imgURL}
+                alt={product.title}
                 className="w-full h-52 object-cover rounded-t-lg"
               />
               <div className="p-4 text-center">
-                <h3 className="text-lg font-semibold text-[#A77F73]">{product.name}</h3>
-                <p className="text-gray-600 mb-2">{product.price}</p>
+                <h3 className="text-lg font-semibold text-[#A77F73]">{product.title}</h3>
+                <p className="text-gray-600 mb-2">{product.price}$</p>
                 <Link to="/login" className="bg-[#A77F73] hover:bg-[#90675F] text-white py-2 px-4 rounded-md text-sm transition">
                   View Details
                 </Link>
@@ -234,8 +235,14 @@ const Hero = () => {
             </motion.div>
           ))}
         </div>
+        <div className='flex items-center justify-center'> 
+        <Link to='/login' className="text-center w-[20%] mt-10 bg-[#A77F73] hover:bg-[#90675F] text-white py-2 px-4 rounded-md text-sm transition">View More</Link>
+
+        </div>
+        <ContactUs/>
       </div>
     </section>
+    <ScrollToTopButton></ScrollToTopButton>
     </div>
   );
 };

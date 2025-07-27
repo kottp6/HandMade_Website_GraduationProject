@@ -17,7 +17,7 @@ export default function ProductList() {
         id: doc.id,
         ...doc.data(),
       }));
-      setProducts(approvedProducts);
+      setProducts(approvedProducts.slice(0 , 4));
     });
 
     return () => unsubscribe();
@@ -36,7 +36,7 @@ export default function ProductList() {
             price={product.price}
             image={product.imgURL}
             rating={product.rating}
-            categoryName={product.category}
+            categoryName={product.categoryName}
             
           />
         ))

@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { FaRegHeart, FaHeart, FaEye } from "react-icons/fa";
-import { db, auth } from "../../firebase";
-
 import {
   doc,
   setDoc,
@@ -9,7 +7,12 @@ import {
   deleteDoc,
   updateDoc,
   onSnapshot,
+  collection,
+  getDocs,
+  query,
+  where,
 } from "firebase/firestore";
+import { db, auth } from "../../firebase";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -18,58 +21,74 @@ export default function ProductCard({
   title,
   price,
   image,
-  rating,
-  
   categoryName,
 }) {
   const [isFavorited, setIsFavorited] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const [stock, setStock] = useState(0);
-
-  useEffect(() => {
-    const productRef = doc(db, "Products", id);
-
-    const unsubscribe = onSnapshot(productRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.data();
-        setStock(data.stock); // Live stock update
-      }
-    });
-
-    return () => unsubscribe(); // Clean up on unmount
-  }, [id]);
+  const [averageRating, setAverageRating] = useState(0);
 
   const navigate = useNavigate();
 
+  // Fetch live stock
+  useEffect(() => {
+    const productRef = doc(db, "Products", id);
+    const unsubscribe = onSnapshot(productRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setStock(snapshot.data().stock ?? 0);
+      }
+    });
+    return () => unsubscribe();
+  }, [id]);
+
+  // Fetch average rating
+  useEffect(() => {
+    const fetchAverageRating = async () => {
+      try {
+        const feedbackRef = collection(db, "Feedbacks");
+        const q = query(feedbackRef, where("productId", "==", id));
+        const snapshot = await getDocs(q);
+
+        let total = 0;
+        let count = 0;
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.rating) {
+            total += data.rating;
+            count++;
+          }
+        });
+
+        setAverageRating(count > 0 ? (total / count).toFixed(1) : 0);
+      } catch (err) {
+        console.error("Error fetching average rating:", err);
+      }
+    };
+    fetchAverageRating();
+  }, [id]);
+
+  // Check if already favorited
   useEffect(() => {
     const checkFavorite = async () => {
       const user = auth.currentUser;
       if (!user) return;
-
       const favRef = doc(db, "favorite", `${user.uid}_${id}`);
       const favSnap = await getDoc(favRef);
-      if (favSnap.exists()) {
-        setIsFavorited(true);
-      }
+      setIsFavorited(favSnap.exists());
     };
-
     checkFavorite();
   }, [id]);
 
   const handleFavoriteClick = async () => {
     const user = auth.currentUser;
-    if (!user) {
-      toast.error("You must be logged in to manage favorites");
-      return;
-    }
+    if (!user) return toast.error("You must be logged in to manage favorites");
 
     const favRef = doc(db, "favorite", `${user.uid}_${id}`);
 
     try {
       if (isFavorited) {
         await deleteDoc(favRef);
-        setIsFavorited(false);
-        toast.success("Removed from favorites!");
+        toast.success("Removed from favorites");
       } else {
         await setDoc(favRef, {
           userId: user.uid,
@@ -78,60 +97,43 @@ export default function ProductCard({
           imgURL: image,
           price,
         });
-        setIsFavorited(true);
-        toast.success("Added to favorites!");
+        toast.success("Added to favorites");
       }
-    } catch (error) {
-      console.error("Failed to toggle favorite:", error);
-      toast.error("Something went wrong.");
+      setIsFavorited(!isFavorited);
+    } catch (err) {
+      console.error("Favorite error:", err);
+      toast.error("Error managing favorite");
     }
   };
 
   const handleAddToCart = async () => {
     const user = auth.currentUser;
-    if (!user) {
-      toast.error("You must be logged in to add to cart");
-      return;
-    }
-  
+    if (!user) return toast.error("You must be logged in to add to cart");
+
     setAddingToCart(true);
+
     const cartId = `${user.uid}_${id}`;
     const cartRef = doc(db, "Cart", cartId);
     const productRef = doc(db, "Products", id);
-  
+
     try {
       const [cartSnap, productSnap] = await Promise.all([
         getDoc(cartRef),
         getDoc(productRef),
       ]);
-  
-      if (!productSnap.exists()) {
-        toast.error("Product no longer exists.");
-        return;
-      }
-  
-      const productData = productSnap.data();
-      const currentStock = productData.stock ?? 0;
-  
-      if (currentStock <= 0) {
-        toast.error("Out of stock");
-        return;
-      }
-  
+
+      if (!productSnap.exists()) return toast.error("Product does not exist");
+
+      const currentStock = productSnap.data().stock ?? 0;
+      if (currentStock <= 0) return toast.error("Out of stock");
+
       if (cartSnap.exists()) {
-        const cartData = cartSnap.data();
-        const newQuantity = cartData.quantity + 1;
-  
+        const currentQty = cartSnap.data().quantity;
         await Promise.all([
-          updateDoc(cartRef, {
-            quantity: newQuantity,
-          }),
-          updateDoc(productRef, {
-            stock: currentStock - 1,
-          }),
+          updateDoc(cartRef, { quantity: currentQty + 1 }),
+          updateDoc(productRef, { stock: currentStock - 1 }),
         ]);
-  
-        toast.success("Quantity updated in cart!");
+        toast.success("Quantity updated in cart");
       } else {
         await Promise.all([
           setDoc(cartRef, {
@@ -142,21 +144,17 @@ export default function ProductCard({
             imgURL: image,
             quantity: 1,
           }),
-          updateDoc(productRef, {
-            stock: currentStock - 1,
-          }),
+          updateDoc(productRef, { stock: currentStock - 1 }),
         ]);
-  
-        toast.success("Added to cart!");
+        toast.success("Added to cart");
       }
-    } catch (error) {
-      console.error("Failed to add to cart:", error);
-      toast.error("Failed to add to cart.");
+    } catch (err) {
+      console.error("Add to cart error:", err);
+      toast.error("Error adding to cart");
     } finally {
       setAddingToCart(false);
     }
   };
-  
 
   const handleViewDetails = () => {
     navigate(`/userproducts/${id}`);
@@ -164,17 +162,17 @@ export default function ProductCard({
 
   return (
     <div className="bg-[#f5f5f1] w-90 mx-auto max-w-xs rounded-xl shadow-md p-4 transition hover:scale-102 duration-200 relative">
+      {/* Image & Icons */}
       <div className="relative">
         <img
           src={image}
           alt={title}
           className="w-full h-56 object-cover rounded-xl"
         />
-
-        {/* Favorite Icon */}
+        {/* Favorite */}
         <button
           onClick={handleFavoriteClick}
-          className="absolute top-2 right-2 p-1 bg-[#A78074] rounded-xl p-2"
+          className="absolute top-2 right-2 p-2 bg-[#A78074] rounded-xl"
         >
           {isFavorited ? (
             <FaHeart className="text-white text-xl" />
@@ -182,32 +180,51 @@ export default function ProductCard({
             <FaRegHeart className="text-white text-xl" />
           )}
         </button>
-
-        {/* View Icon */}
+        {/* View */}
         <div className="absolute top-2 left-2 group bg-[#A78074] p-1 rounded-xl">
-          <button className="p-1">
-            <FaEye onClick={handleViewDetails} className="text-[#eee1dd] text-xl" />
+          <button onClick={handleViewDetails}>
+            <FaEye className="text-[#eee1dd] text-xl" />
           </button>
-          <div className="absolute top-full left-1/2 -translate-x-1/2 bg-[#A78074] text-white text-xs px-2 py-1 rounded opacity-0 
-            group-hover:opacity-100 transition duration-200 whitespace-nowrap z-10">
+          <div className="absolute top-full left-1/2 -translate-x-1/2 bg-[#A78074] text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition duration-200 whitespace-nowrap z-10">
             View Details
           </div>
         </div>
       </div>
 
+      {/* Info */}
       <div className="mt-4">
-        <h2 className="text-xl font-semibold text-[#A78074] text-left">
-          {title}
-        </h2>
-        <div className="flex justify-between items-center mt-2 text-base">
-          <div className="flex items-center gap-1 text-yellow-500 font-semibold">
-            ⭐ {rating ?? 0} / 5
+        <h2 className="text-xl font-semibold text-[#A78074]">{title}</h2>
+
+        {/* Rating & Stock */}
+        <div className="flex justify-between items-center mt-2">
+          <div className="flex items-center gap-1">
+            {[...Array(5)].map((_, i) => (
+              <svg
+                key={i}
+                className={`w-5 h-5 ${
+                  i < Math.round(averageRating)
+                    ? "text-yellow-400"
+                    : "text-gray-300"
+                }`}
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.063 3.278a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.063 3.278c.3.921-.755 1.688-1.54 1.118L10 13.347l-2.8 2.034c-.785.57-1.84-.197-1.54-1.118l1.063-3.278a1 1 0 00-.364-1.118L3.56 8.705c-.783-.57-.38-1.81.588-1.81h3.462a1 1 0 00.95-.69l1.063-3.278z" />
+              </svg>
+            ))}
+            <span className="text-sm font-semibold text-[#A78074] ml-1 ">
+              {averageRating || "0.0"} / 5
+            </span>
           </div>
-          <div className="flex items-center text-[#a27466] font-bold">
-            <span className="text-[#A78074] mr-1">Available:</span> {stock}
-          </div>
+          
+          <span className="text-[#a27466] font-bold">
+            Available: {stock}
+          </span>
         </div>
+
         <p className="text-sm text-gray-500 mt-2">Category: {categoryName}</p>
+
+        {/* Price & Add to Cart */}
         <div className="flex justify-between items-center mt-4">
           <p className="text-lg font-bold text-[#A78074]">{price} EGP</p>
           <button
@@ -219,9 +236,12 @@ export default function ProductCard({
                 : "bg-[#A78074] text-white border-[#A78074] hover:bg-white hover:text-[#A78074]"
             }`}
           >
-            {stock === 0 ? "Out of Stock" : addingToCart ? "Adding..." : "Add To Cart"}
+            {stock === 0
+              ? "Out of Stock"
+              : addingToCart
+              ? "Adding..."
+              : "Add To Cart"}
           </button>
-
         </div>
       </div>
     </div>

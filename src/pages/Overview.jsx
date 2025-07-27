@@ -183,7 +183,7 @@ export default function Overview() {
   };
   return (
     <>
-    <div className="flex h-screen bg-[#F5F5F1]">
+    <div className="flex h-screen bg-[#F5F5F1] ">
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} navItems={navItems} />
     <div className="flex-1 flex flex-col overflow-auto">
     <header className="flex items-center justify-between px-4 py-3 shadow bg-white border-b border-gray-200">

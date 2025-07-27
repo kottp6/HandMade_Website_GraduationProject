@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../../firebase";
-import { addDoc, collection, serverTimestamp, getDocs, query, where, deleteDoc, doc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  serverTimestamp,
+  getDocs,
+  query,
+  where,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 
 const PaymentModal = ({ method, onClose, cartItems = [], total = 0 }) => {
   const navigate = useNavigate();
 
-
-  const isCash = method.toLowerCase() === "cash" || method.toLowerCase() === "cach";
-
+  const isCash =
+    method.toLowerCase() === "cash" || method.toLowerCase() === "cach";
 
   const totalQuantity = cartItems.reduce(
     (sum, item) => sum + (item.quantity || 1),
@@ -17,7 +25,6 @@ const PaymentModal = ({ method, onClose, cartItems = [], total = 0 }) => {
   const deliveryFee = totalQuantity * 5;
   const grandTotal = total + deliveryFee;
 
- 
   const [formData, setFormData] = useState({
     name: "",
     card: "",
@@ -53,7 +60,7 @@ const PaymentModal = ({ method, onClose, cartItems = [], total = 0 }) => {
     }
 
     if (!/^\d{3,4}$/.test(formData.cvv)) {
-      errs.cvv = "CVV must be 3–4 digits";
+      errs.cvv = "CVV must be 3 or 4 digits";
     }
 
     setErrors(errs);
@@ -77,7 +84,10 @@ const PaymentModal = ({ method, onClose, cartItems = [], total = 0 }) => {
 
   const deleteAllUserCartItems = async (userId) => {
     try {
-      const cartQuery = query(collection(db, "Cart"), where("userId", "==", userId));
+      const cartQuery = query(
+        collection(db, "Cart"),
+        where("userId", "==", userId)
+      );
       const snapshot = await getDocs(cartQuery);
       const deletions = snapshot.docs.map((docSnap) =>
         deleteDoc(doc(db, "Cart", docSnap.id))
@@ -90,13 +100,13 @@ const PaymentModal = ({ method, onClose, cartItems = [], total = 0 }) => {
 
   const handleSubmit = async () => {
     if (!isValid) return;
-  
+
     const user = auth.currentUser;
     if (!user) {
       alert("You must be logged in to place an order.");
       return;
     }
-  
+
     try {
       // 1. Save Order
       await addDoc(collection(db, "Orders"), {
@@ -109,20 +119,18 @@ const PaymentModal = ({ method, onClose, cartItems = [], total = 0 }) => {
         createdAt: serverTimestamp(),
         status: "pending",
       });
-  
+
       // 2. Delete all cart items
       await deleteAllUserCartItems(user.uid);
-  
+
       // 3. Navigate to success page
       onClose();
       navigate("/paymentsuccess");
-  
     } catch (error) {
       console.error("Error saving order:", error);
       alert("Failed to place order. Try again.");
     }
   };
-  
 
   const handleCancel = () => {
     onClose();
@@ -194,25 +202,36 @@ const PaymentModal = ({ method, onClose, cartItems = [], total = 0 }) => {
             </div>
 
             <div className="flex gap-4">
-              <input
-                name="expiry"
-                placeholder="MM/YY"
-                value={formData.expiry}
-                onChange={handleChange}
-                className={`w-1/2 p-3 rounded-xl border ${
-                  errors.expiry ? "border-red-400" : "border-[#e0dcd8]"
-                } bg-[#f9f9f7] text-[#A78074]`}
-              />
-              <input
-                name="cvv"
-                placeholder="CVV"
-                maxLength={4}
-                value={formData.cvv}
-                onChange={handleChange}
-                className={`w-1/2 p-3 rounded-xl border ${
-                  errors.cvv ? "border-red-400" : "border-[#e0dcd8]"
-                } bg-[#f9f9f7] text-[#A78074]`}
-              />
+              <div className="w-1/2">
+                <input
+                  name="expiry"
+                  placeholder="MM/YY"
+                  value={formData.expiry}
+                  onChange={handleChange}
+                  className={`w-full p-3 rounded-xl border ${
+                    errors.expiry ? "border-red-400" : "border-[#e0dcd8]"
+                  } bg-[#f9f9f7] text-[#A78074]`}
+                />
+                {errors.expiry && (
+                  <p className="text-red-500 text-sm mt-1">{errors.expiry}</p>
+                )}{" "}
+              </div>
+
+              <div className="w-1/2">
+                <input
+                  name="cvv"
+                  placeholder="CVV"
+                  maxLength={4}
+                  value={formData.cvv}
+                  onChange={handleChange}
+                  className={`w-full p-3 rounded-xl border ${
+                    errors.cvv ? "border-red-400" : "border-[#e0dcd8]"
+                  } bg-[#f9f9f7] text-[#A78074]`}
+                />
+                {errors.cvv && (
+                  <p className="text-red-500 text-sm mt-1">{errors.cvv}</p>
+                )}
+              </div>
             </div>
           </div>
         )}

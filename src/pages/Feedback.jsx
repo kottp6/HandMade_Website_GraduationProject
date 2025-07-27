@@ -23,8 +23,9 @@ export default function Feedback() {
     const fetchFeedbacks = async () => {
       setLoading(true);
       try {
-        const querySnapshot = await getDocs(collection(db, "Feedbacks"));
-        const data = querySnapshot.docs.map((doc) => {
+        // Fetch feedbacks
+        const feedbackSnapshot = await getDocs(collection(db, "Feedbacks"));
+        const feedbackData = feedbackSnapshot.docs.map((doc) => {
           const raw = doc.data();
           return {
             id: doc.id,
@@ -32,17 +33,42 @@ export default function Feedback() {
             createdAt: raw.createdAt?.toDate?.() || new Date(),
           };
         });
-        setFeedbacks(data);
-        setFilteredFeedbacks(data);
+  
+        // Fetch users
+        const userSnapshot = await getDocs(collection(db, "Users"));
+        const userMap = {};
+        userSnapshot.docs.forEach((doc) => {
+          const user = doc.data();
+          userMap[doc.id] = user.name || user.displayName || "Unknown User";
+        });
+  
+        // Fetch products
+        const productSnapshot = await getDocs(collection(db, "Products"));
+        const productMap = {};
+        productSnapshot.docs.forEach((doc) => {
+          const product = doc.data();
+          productMap[doc.id] = product.title || "Unknown Product";
+        });
+  
+        // Merge into feedback
+        const enrichedFeedbacks = feedbackData.map((fb) => ({
+          ...fb,
+          userName: userMap[fb.userId] || "Unknown User",
+          productName: productMap[fb.productId] || "Unknown Product",
+        }));
+  
+        setFeedbacks(enrichedFeedbacks);
+        setFilteredFeedbacks(enrichedFeedbacks);
       } catch (error) {
-        console.error("Error fetching feedbacks:", error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchFeedbacks();
   }, []);
+  
 
   useEffect(() => {
     let filtered = feedbacks;
@@ -201,11 +227,11 @@ export default function Feedback() {
 
                 <p className="text-sm text-gray-600 mb-2">
                   <span className="font-medium text-[#A78074]">Product:</span>{" "}
-                  {fb.productId || "—"}
+                  {fb.productName || fb.productId || "—"}
                 </p>
                 <p className="text-sm text-gray-600 mb-2">
                   <span className="font-medium text-[#A78074]">User:</span>{" "}
-                  {fb.userId || "—"}
+                  {fb.userName || fb.userId || "—"}
                 </p>
                 <p className="text-sm text-gray-700 italic">
                   "{fb.message || "No message"}"

@@ -61,7 +61,7 @@ const Article = () => {
 
   return (
     <>
-    <Navbar />
+    {/* <Navbar /> */}
       {/* ImageSlider with Handmade Images */}
       <ImageSlider
         images={[

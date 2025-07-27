@@ -4,88 +4,88 @@ import ReviewCard from "../Components/ReviewCard/ReviewCard";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import Sidebar from "../Components/Sidebar/Sidebar";
-import { LayoutDashboard, Package, Users, Building, MessageSquare, AlertCircle, Star } from "lucide-react";
-import { Menu, LogOut } from "lucide-react";
+import {
+  LayoutDashboard,
+  Package,
+  Users,
+  Building,
+  MessageSquare,
+  AlertCircle,
+  Star,
+  Menu,
+  LogOut,
+} from "lucide-react";
 import { FaShoppingCart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 export default function Reviews() {
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const defaultReviews = [
-    {
-      id: "sample1",
-      user_id: "guest_user1",
-      product_id: "Handmade Soap",
-      rating: 5,
-      comment: "Absolutely love this product!",
-    },
-    {
-      id: "sample2",
-      user_id: "guest_user2",
-      product_id: "Organic Candle",
-      rating: 4,
-      comment: "Smells great and lasts long.",
-    },
-    {
-      id: "sample3",
-      user_id: "guest_user3",
-      product_id: "Natural Cream",
-      rating: 5,
-      comment: "Very smooth on the skin. Highly recommend!",
-    },
-  ];
-
-  useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const snapshot = await getDocs(collection(db, "Reviews"));
-        const data = snapshot.empty
-          ? defaultReviews
-          : snapshot.docs.map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            }));
-        setReviews(data);
-      } catch (err) {
-        console.error("Error fetching reviews:", err);
-        setReviews(defaultReviews); // fallback if error
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchReviews();
-  }, []);
-
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+
   const navItems = [
     { name: "Overview", path: "/admin/overview", icon: <LayoutDashboard size={20} /> },
     { name: "Products", path: "/admin/products", icon: <Package size={20} /> },
     { name: "Users", path: "/admin/users", icon: <Users size={20} /> },
     { name: "Vendor", path: "/admin/vendor", icon: <Building size={20} /> },
     { name: "Orders", path: "/admin/orders", icon: <FaShoppingCart size={20} /> },
-  
     { name: "Feedback", path: "/admin/feedback", icon: <MessageSquare size={20} /> },
     { name: "Complaint", path: "/admin/complaint", icon: <AlertCircle size={20} /> },
     { name: "Reviews", path: "/admin/reviews", icon: <Star size={20} /> },
   ];
-  const navigate = useNavigate();
+
   const handleLogout = () => {
-    // Add your logout logic here
-    navigate("/login");
+    // Add real auth sign-out logic here
     console.log("Logging out...");
+    navigate("/login");
   };
 
+ 
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        // Fetch reviews
+        const reviewSnapshot = await getDocs(collection(db, "reviews"));
+        const reviewsData = reviewSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+  
+        // Fetch users
+        const userSnapshot = await getDocs(collection(db, "Users"));
+        const userMap = {};
+        userSnapshot.docs.forEach((doc) => {
+          const userData = doc.data();
+          userMap[doc.id] = userData.name || userData.displayName || "Unknown User";
+        });
+  
+        // Merge user name into review
+        const reviewsWithUserNames = reviewsData.map((review) => ({
+          ...review,
+          userName: userMap[review.userId] || "Anonymous",
+        }));
+  
+        setReviews(reviewsWithUserNames);
+      } catch (err) {
+        console.error("Error fetching reviews or users:", err);
+        setReviews([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchReviews();
+  }, []);
+  
+
   return (
-    <>
-    <div className="flex h-screen bg-[#F5F5F1]">
+    <div className="flex h-screen bg-[#F5F5F1] overflow-x-hidden">
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} navItems={navItems} />
-    <div className="flex-1 flex flex-col overflow-auto">
-    <header className="flex items-center justify-between px-4 py-3 shadow bg-white border-b border-gray-200">
+      <div className="flex-1 flex flex-col overflow-auto">
+        <header className="flex items-center justify-between px-4 py-3 shadow bg-white border-b border-gray-200">
           <div className="flex items-center space-x-4">
-            {/* Hamburger for mobile */}
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="text-[#A78074] hover:text-black"
@@ -95,45 +95,44 @@ export default function Reviews() {
             <h1 className="text-xl font-bold text-[#A78074]">Reviews</h1>
           </div>
           <div className="flex items-center space-x-4">
-            <button
-              onClick={handleLogout}
-              className="text-red-500 hover:text-red-700"
-            >
+            <button onClick={handleLogout} className="text-red-500 hover:text-red-700">
               <LogOut size={24} />
             </button>
           </div>
         </header>
-        <PageLayout title="Reviews">
-      <div className="bg-[#F5F5F1] min-h-screen px-6 py-10">
-        <div className="max-w-6xl mx-auto space-y-8">
-          <h2 className="text-2xl font-bold text-[#A78074] border-b pb-2">Customer Reviews</h2>
 
-          {loading ? (
-            <p className="text-center text-gray-500 animate-pulse">
-              Loading reviews...
-            </p>
-          ) : reviews.length === 0 ? (
-            <div className="text-center text-[#A78074] font-medium mt-10">
-              <p>No reviews found.</p>
+        <PageLayout title="Reviews">
+          <div className="bg-[#F5F5F1] min-h-screen px-6 py-10">
+            <div className="max-w-6xl mx-auto space-y-8">
+              <h2 className="text-2xl font-bold text-[#A78074] border-b pb-2">
+                Customer Reviews
+              </h2>
+
+              {loading ? (
+                <div className="flex justify-center py-20">
+                  <div className="w-10 h-10 border-4 border-[#A78074] border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : reviews.length === 0 ? (
+                <div className="text-center text-[#A78074] font-medium mt-10">
+                  <p>No reviews found.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {reviews.map((r) => (
+                    <ReviewCard
+                    key={r.id}
+                    product={r.productId || "Unknown Product"}
+                    rating={r.rating || 0}
+                    comment={r.comment || "No comment provided"}
+                    user={r.userName}
+                  />
+                  ))}
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {reviews.map((r) => (
-                <ReviewCard
-                  key={r.id}
-                  product={r.product_id || "Unknown Product"}
-                  rating={r.rating || 0}
-                  comment={r.comment || "No comment provided"}
-                  user={r.user_id || "Anonymous"}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+          </div>
+        </PageLayout>
       </div>
-    </PageLayout>
     </div>
-    </div>
-    </>
   );
 }

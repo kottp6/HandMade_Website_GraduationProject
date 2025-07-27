@@ -9,7 +9,7 @@ import SpecialOffers from "./SpecialOffers";
 import Testimonials from "./Testimonials";
 import { Link } from "react-router-dom";
 import UserComplaints from "../UserComplaints/UserComplaints";
-
+import UserReviews from "../UserReviews/UserReviews";
 export default function HomeUser() {
   const [searchQuery, setSearchQuery] = useState("");
   const [products, setProducts] = useState([]);
@@ -39,7 +39,7 @@ export default function HomeUser() {
         });
 
         //setProducts(productList);
-        setProducts(productList.slice(0, 4));
+        setProducts(productList.slice(0 , 6));
         setCategories(categoryMap);
       } catch (error) {
         console.error("Error loading data:", error);
@@ -80,6 +80,7 @@ export default function HomeUser() {
             <SpecialOffers />
             <Testimonials />
             <UserComplaints />
+            <UserReviews/>
           </>
         )}
       </div>

@@ -9,11 +9,70 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 
+const validGovernorateCodes = [
+  "01",
+  "02",
+  "03",
+  "04",
+  "11",
+  "12",
+  "13",
+  "14",
+  "15",
+  "16",
+  "17",
+  "18",
+  "19",
+  "21",
+  "22",
+  "23",
+  "24",
+  "25",
+  "26",
+  "27",
+  "28",
+  "29",
+  "31",
+  "32",
+  "33",
+  "34",
+  "35",
+  "88",
+];
+
 const vendorSchema = z.object({
   nationID: z
     .string()
     .length(14, "Nation ID must be exactly 14 digits")
-    .regex(/^[23]\d{13}$/, "Nation ID must be digits only"),
+    .regex(/^[23]\d{13}$/, "Nation ID must be digits only") // يبدا بي 2 او 3 دا القرن
+    .refine((val) => {
+      const year = parseInt(val.slice(1, 3));
+      return year >= 0 && year <= 99; // الخانه التانيه والتالته اخر رقمين من سنت الميلاد
+    }, "Year in National ID must be between 00 and 99")
+    .refine((val) => {
+      const month = parseInt(val.slice(3, 5));
+      return month >= 1 && month <= 12;
+    }, "Month in National ID must be between 01 and 12") // الخانه الرابعه والخامسه الشهر
+    .refine((val) => {
+      const day = parseInt(val.slice(5, 7));
+      return day >= 1 && day <= 31;
+    }, "Day in National ID must be between 01 and 31") // الخانه السادسه والسابعه يوم اليملاد
+    .refine((val) => {
+      const govCode = val.slice(7, 9);
+      return validGovernorateCodes.includes(govCode);
+    }, "Governorate code in National ID is invalid") // الخانه التامنه والتسعه كود المحافظه
+    .refine((val) => {
+      const serial = parseInt(val.slice(9, 12));
+      return serial >= 0 && serial <= 999;
+    }, "Serial number in National ID must be between 000 and 999") // الخانه 10 11 12 ترتيب اتولدت كام في المحافظه بتاعتي
+    .refine((val) => {
+      const genderDigit = parseInt(val.slice(12, 13));
+      return genderDigit >= 0 && genderDigit <= 9;
+    }, "Gender digit must be a number between 0 and 9") // رقم لو زوجي انثي لو فردي ذكر الخانه 13
+    .refine((val) => {
+      const checkDigit = parseInt(val.slice(13, 14));
+      return checkDigit >= 0 && checkDigit <= 9;
+    }, "Invalid national ID format"), // الخانه 14 رقم عشوائي للحمايه البطاقه من التزوير
   bio: z.string().min(20, "Bio must be exactly 20 characters"),
 });
 

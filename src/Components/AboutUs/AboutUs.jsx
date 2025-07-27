@@ -8,17 +8,6 @@ export default function AboutPage() {
     <>
     <Navbar />
     <div className="font-garamond text-[#A78074] bg-white">
-
-      {/* Back to Home Navigation */}
-      <div className="max-w-6xl mx-auto px-4 pt-10">
-        <Link
-          to="/"
-          className="inline-flex items-center text-[#A78074] hover:underline text-sm font-medium"
-        >
-          Home ← About
-        </Link>
-      </div>
-
       {/* About Section */}
       <section className="max-w-6xl mx-auto py-16 px-4">
         <motion.h2
