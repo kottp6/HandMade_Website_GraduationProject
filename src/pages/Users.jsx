@@ -51,6 +51,7 @@ export default function UsersPage() {
         )
       );
     }
+    setCurrentPage(1); // Reset to page 1 on filter
   }, [searchTerm, users]);
 
   const totalPages = Math.ceil(filteredUsers.length / usersPerPage);

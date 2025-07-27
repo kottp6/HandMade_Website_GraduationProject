@@ -24,7 +24,7 @@ export default function VendorPage() {
           .map((doc) => ({
             id: doc.id,
             ...doc.data(),
-            createdAt: doc.data().createdAt?.toDate?.() || null,
+            createdAt: doc.data().createdAt.slice(0, 10) || null,
             status: doc.data().status || "Pending",
           }))
           .filter((user) => user.role === "vendor");
@@ -208,7 +208,7 @@ export default function VendorPage() {
                     <p className="text-sm text-gray-600">{vendor.email}</p>
                   </div>
                 </div>
-                <p className="text-sm text-gray-500">Registered: {vendor.createdAt?.toLocaleDateString() || "—"}</p>
+                <p className="text-sm text-gray-500">Registered: {vendor.createdAt}</p>
                 <div className="mt-2">{statusBadge(vendor.status)}</div>
               </div>
             ))}
@@ -244,7 +244,7 @@ export default function VendorPage() {
                 <p><strong>Phone:</strong> {selectedVendor.phone || "—"}</p>
                 <p><strong>National ID:</strong> {selectedVendor.nationID || "—"}</p>
                 <p><strong>Status:</strong> {statusBadge(selectedVendor.status)}</p>
-                <p><strong>Registered:</strong> {selectedVendor.createdAt?.toLocaleDateString() || "—"}</p>
+                <p><strong>Registered:</strong> {selectedVendor.createdAt || "—"}</p>
               </div>
 
               <div>

@@ -30,6 +30,7 @@ export default function Orders() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isTableOpen, setIsTableOpen] = useState(true);
+  const [statusFilter, setStatusFilter] = useState("All");
 
   const itemsPerPage = 5;
 
@@ -60,6 +61,11 @@ export default function Orders() {
         (order) => order.paymentMethod === paymentFilter
       );
     }
+    if (statusFilter !== "All") {
+      filtered = filtered.filter(
+        (order) => order.status === statusFilter
+      );
+    }
 
     if (searchTerm.trim() !== "") {
       filtered = filtered.filter((order) => {
@@ -74,7 +80,7 @@ export default function Orders() {
 
     setFilteredOrders(filtered);
     setCurrentPage(1);
-  }, [paymentFilter, searchTerm, orders]);
+  }, [paymentFilter, searchTerm, orders, statusFilter]);
 
   const parseDate = (date) =>
     new Date(date?.toDate ? date.toDate() : date);
@@ -264,6 +270,15 @@ export default function Orders() {
               className="border border-[#A78074] text-[#A78074] px-3 py-2 rounded-md shadow-sm"
             >
               {["All", "Paypal", "Cash", "Visa"].map((option) => (
+                <option key={option}>{option}</option>
+              ))}
+            </select>
+             <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="border border-[#A78074] text-[#A78074] px-3 py-2 rounded-md shadow-sm"
+            >
+              {["All", "Pending", "On the way", "Completed"].map((option) => (
                 <option key={option}>{option}</option>
               ))}
             </select>

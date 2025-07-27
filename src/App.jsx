@@ -18,7 +18,6 @@ import Services from './Components/Services/Services';
 import VendorForm from './Components/VendorForm/VendorForm';
 import HomeUser from './Components/HomeUser/HomeUser';
 import VendorHome from './Components/VendorHome/VendorHome';
-import Dashborad from './Components/Dashborad/Dashborad';
 import UserFavorite from './Components/UserFavorite/UserFavorite';
 import UserCart from './Components/UserCart/UserCart';
 import UserProducts from './Components/UserProducts/UserProducts';
@@ -28,13 +27,12 @@ import VendorProfile from './Components/VendorProfile/VendorProfile';
 import CustomerVendorChat from './Components/CustomerVendorChat/CustomerVendorChat';
 import VendorChatsPage from './Components/VendorChatsPage/VendorChatsPage';
 import ChatRoom from './Components/ChatRoom/ChatRoom';
-import VendorAddProducts from './Components/VendorAddProducts/VendorAddProducts';
 import VendorFavorite from './Components/VendorFavorite/VendorFavorite';
 import VendorCart from './Components/VendorCart/VendorCart';
 import VendorProductsApproved from './Components/VendorProductsApproved/VendorProductsApproved';
 import VendorProductDetails from './Components/VendorProductDetails/VendorProductDetails';
 import Showvendorproduct from './Components/Showvendorproduct/Showvendorproduct';
-import VendorChatPage from './Components/VendorChatPage/VendorChatPage.JSX';
+import VendorChatPage from './Components/VendorChatPage/VendorChatPage';
 import Checkout from './Components/Checkout/Checkout';
 import PaymentSuccess from './Components/Success/PaymentSuccess';
 import UserOrders from './Components/UserOrders/UserOrders';
@@ -120,7 +118,7 @@ function App() {
         <Route path="/vendor/orders" element={<ProtectedRoute><VendorOrders /></ProtectedRoute>} />
         <Route path="/vendor/orders/:orderId" element={<ProtectedRoute><VendorOrderDetails /></ProtectedRoute>} />
         <Route path="/vendor/:vendorId" element={<ProtectedRoute><VendorPage /></ProtectedRoute>} />
-          {/* <Route path="/vendor/addproduct" element={<VendorAddProducts />} />        */}
+
         <Route path="/vendor/favorites" element={<ProtectedRoute><VendorFavorite /></ProtectedRoute>} />
         <Route path="/vendor/cart" element={<ProtectedRoute><VendorCart /></ProtectedRoute>} />
         <Route path="/checkoutvendor" element={<ProtectedRoute><CheckoutVendor /></ProtectedRoute>} />
@@ -140,7 +138,7 @@ function App() {
         <Route path='/admin/feedback' element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
         <Route path='/admin/complaint' element={<ProtectedRoute><Complaint /></ProtectedRoute>} />
         <Route path='/admin/reviews' element={<ProtectedRoute><Reviews /></ProtectedRoute>} />
-        {/* Optional: add 404 route */}
+  
         <Route path="*" element={<NotFound />} />
       </Routes>
       <Footer />
