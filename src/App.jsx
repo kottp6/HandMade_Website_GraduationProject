@@ -61,6 +61,7 @@ import VendorNotifications from './Components/VendorNotifications/VendorNotifica
 import ProtectedRoute from './ProtectRoute/ProtectedRoute';
 import NotFound from './Components/NotFound/NotFound';
 import VendorDetails from './Components/VendorHome/VendorDetails'
+import OurTeam from './Components/OurTeam/OurTeam'
 function App() {
   const [loading, setLoading] = useState(true);
   useMessageNotification();
@@ -90,6 +91,8 @@ function App() {
         <Route path="/products" element={<FeaturedProducts />} />
         <Route path="/testimonials" element={<Testimonials />} />
         <Route path="/services" element={<Services />} />
+        <Route path="/team" element={<OurTeam />} />
+
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/vendorform" element={<VendorForm />} />

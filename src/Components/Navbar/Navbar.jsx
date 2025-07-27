@@ -9,10 +9,10 @@ const customColor = '#A77F73';
 const links = [
   { name: 'Home', to: '/' },
   { name: 'About', to: '/about' },
-  { name: 'Journal', to: '/journal' },
   { name: 'Service', to: '/services' },
   { name: 'Latest Product', to: '/products' },
   { name: 'Testimonials', to: '/testimonials' },
+  {name: 'Our Team', to:'/team'}
 ];
 
 const Navbar = () => {
